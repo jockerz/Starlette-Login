@@ -9,7 +9,7 @@ from .configs import SESSION_KEY
 from .mixins import UserMixin, AnonymousUser
 
 
-def login_user(
+async def login_user(
     request: Request, user: UserMixin, remember: bool = False,
     duration: timedelta = None, fresh: bool = True
 ):

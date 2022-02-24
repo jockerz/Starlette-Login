@@ -1,3 +1,4 @@
+import asyncio
 import typing as t
 
 from starlette.requests import HTTPConnection
@@ -15,8 +16,6 @@ class BaseAuthenticationBackend:
 
 
 class SessionAuthBackend(BaseAuthenticationBackend):
-    name = 'session'
-
     def __init__(self, login_manager: LoginManager):
         self.login_manager = login_manager
 
@@ -27,4 +26,7 @@ class SessionAuthBackend(BaseAuthenticationBackend):
         if user_id is None:
             return
 
-        return await self.login_manager.user_loader(request, user_id)
+        if asyncio.iscoroutinefunction(self.login_manager.user_loader):
+            return await self.login_manager.user_loader(request, user_id)
+        else:
+            return self.login_manager.user_loader(request, user_id)
