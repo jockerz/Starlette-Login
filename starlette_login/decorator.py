@@ -2,7 +2,6 @@ import asyncio
 import functools
 import inspect
 import typing
-from urllib.parse import quote
 
 from starlette.requests import Request
 from starlette.responses import Response, RedirectResponse
@@ -46,14 +45,9 @@ def login_required(func: typing.Callable) -> typing.Callable:
 
             user = request.scope.get('user')
             if user and getattr(user, 'is_authenticated', False) is False:
-                print(f'request.scope: {request.scope}')
-                print(f'login url: {request.url_for("login")}')
-                print(f'request.url: {request.url}')
                 redirect_url = make_next_url(
-                    request.url_for("login"),
-                    str(request.url)
+                    request.url_for("login"), str(request.url)
                 )
-                print(f'redirect_url: {redirect_url}')
                 return RedirectResponse(redirect_url, status_code=302)
             else:
                 return await func(*args, **kwargs)
@@ -67,9 +61,10 @@ def login_required(func: typing.Callable) -> typing.Callable:
 
             user = request.scope.get('user')
             if user and getattr(user, 'is_authenticated', False) is False:
-                return RedirectResponse(
-                    request.url_for('login'), status_code=302
+                redirect_url = make_next_url(
+                    request.url_for("login"), str(request.url)
                 )
+                return RedirectResponse(redirect_url, status_code=302)
             else:
                 return func(*args, **kwargs)
         return sync_wrapper
