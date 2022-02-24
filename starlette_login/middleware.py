@@ -1,7 +1,6 @@
 import typing as t
 
 from starlette.requests import HTTPConnection
-from starlette.responses import RedirectResponse
 from starlette.types import ASGIApp, Receive, Scope, Send
 
 from .backends import BaseAuthenticationBackend
@@ -49,16 +48,5 @@ class AuthenticationMiddleware:
         user = await self.backend.authenticate(conn)
         if user and user.is_authenticated is True:
             scope['user'] = user
-        elif getattr(
-            conn.state,
-            self.login_manager.LOGIN_REQUIRED,
-            False
-        ) is True:
-            response = RedirectResponse(
-                self.login_manager.build_redirect_url(conn),
-                status_code=302
-            )
-            await response(scope, receive, send)
-            return
 
         await self.app(scope, receive, send)

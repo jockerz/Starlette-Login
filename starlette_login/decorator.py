@@ -7,8 +7,6 @@ from starlette.requests import Request
 from starlette.responses import Response, RedirectResponse
 from starlette.websockets import WebSocket
 
-from .login_manager import LoginManager
-
 
 def login_required() -> typing.Callable:
     def decorator(func: typing.Callable) -> typing.Callable:
