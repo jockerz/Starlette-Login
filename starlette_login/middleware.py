@@ -38,12 +38,9 @@ class AuthenticationMiddleware:
         conn = HTTPConnection(scope)
         if 'user' not in scope:
             scope['user'] = self.login_manager.anonymous_user_cls()
-        else:
-            # User has been loaded to scope
-            if self.login_manager.config.skip_user_loaded is True:
-                # Skip authentication by configuration
-                await self.app(scope, receive, send)
-                return
+        elif getattr(scope['user'], 'is_authenticated', False) is True \
+                and self.login_manager.config.skip_user:
+            await self.app(scope, receive, send)
 
         user = await self.backend.authenticate(conn)
         if user and user.is_authenticated is True:

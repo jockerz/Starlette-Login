@@ -71,7 +71,7 @@ async def home_page(request: Request):
     return HTMLResponse(content=content)
 
 
-@login_required()
+@login_required
 async def protected_page(request: Request):
     return PlainTextResponse(
         f'You are logged in as {request.user.username}'

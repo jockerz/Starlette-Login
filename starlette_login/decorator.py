@@ -2,68 +2,74 @@ import asyncio
 import functools
 import inspect
 import typing
+from urllib.parse import quote
 
 from starlette.requests import Request
 from starlette.responses import Response, RedirectResponse
 from starlette.websockets import WebSocket
 
+from .utils import make_next_url
 
-def login_required() -> typing.Callable:
-    def decorator(func: typing.Callable) -> typing.Callable:
-        sig = inspect.signature(func)
-        for idx, parameter in enumerate(sig.parameters.values()):
-            if parameter.name == "request" or parameter.name == "websocket":
-                break
-        else:
-            raise Exception(
-                f'No "request" or "websocket" argument on function "{func}"'
-            )
 
-        if type == 'websocket':
-            @functools.wraps(func)
-            async def websocket_wrapper(
-                *args: typing.Any, **kwargs: typing.Any
-            ) -> None:
-                websocket = kwargs.get("websocket", args[idx] if args else None)
-                assert isinstance(websocket, WebSocket)
+def login_required(func: typing.Callable) -> typing.Callable:
+    sig = inspect.signature(func)
+    for idx, parameter in enumerate(sig.parameters.values()):
+        if parameter.name == "request" or parameter.name == "websocket":
+            break
+    else:
+        raise Exception(
+            f'No "request" or "websocket" argument on function "{func}"'
+        )
 
-                user = websocket.scope.get('user')
-                if getattr(user, 'is_authenticated', False) is False:
-                    await websocket.close()
-                else:
-                    await func(*args, **kwargs)
-            return websocket_wrapper
+    if type == 'websocket':
+        @functools.wraps(func)
+        async def websocket_wrapper(
+            *args: typing.Any, **kwargs: typing.Any
+        ) -> None:
+            websocket = kwargs.get("websocket", args[idx] if args else None)
+            assert isinstance(websocket, WebSocket)
 
-        elif asyncio.iscoroutinefunction(func):
-            @functools.wraps(func)
-            async def async_wrapper(
-                *args: typing.Any, **kwargs: typing.Any
-            ) -> Response:
-                request = kwargs.get("request", args[idx] if args else None)
-                assert isinstance(request, Request)
+            user = websocket.scope.get('user')
+            if user and getattr(user, 'is_authenticated', False) is False:
+                await websocket.close()
+            else:
+                await func(*args, **kwargs)
+        return websocket_wrapper
 
-                user = request.scope.get('user')
-                if getattr(user, 'is_authenticated', False) is False:
-                    return RedirectResponse(
-                        request.url_for('login'), status_code=302
-                    )
-                else:
-                    return await func(*args, **kwargs)
-            return async_wrapper
+    elif asyncio.iscoroutinefunction(func):
+        @functools.wraps(func)
+        async def async_wrapper(
+            *args: typing.Any, **kwargs: typing.Any
+        ) -> Response:
+            request = kwargs.get("request", args[idx] if args else None)
+            assert isinstance(request, Request)
 
-        else:
-            @functools.wraps(func)
-            def sync_wrapper(*args: typing.Any, **kwargs: typing.Any) -> Response:
-                request = kwargs.get("request", args[idx] if args else None)
-                assert isinstance(request, Request)
+            user = request.scope.get('user')
+            if user and getattr(user, 'is_authenticated', False) is False:
+                print(f'request.scope: {request.scope}')
+                print(f'login url: {request.url_for("login")}')
+                print(f'request.url: {request.url}')
+                redirect_url = make_next_url(
+                    request.url_for("login"),
+                    str(request.url)
+                )
+                print(f'redirect_url: {redirect_url}')
+                return RedirectResponse(redirect_url, status_code=302)
+            else:
+                return await func(*args, **kwargs)
+        return async_wrapper
 
-                user = request.scope.get('user')
-                if getattr(user, 'is_authenticated', False) is False:
-                    return RedirectResponse(
-                        request.url_for('login'), status_code=302
-                    )
-                else:
-                    return func(*args, **kwargs)
-            return sync_wrapper
+    else:
+        @functools.wraps(func)
+        def sync_wrapper(*args: typing.Any, **kwargs: typing.Any) -> Response:
+            request = kwargs.get("request", args[idx] if args else None)
+            assert isinstance(request, Request)
 
-    return decorator
+            user = request.scope.get('user')
+            if user and getattr(user, 'is_authenticated', False) is False:
+                return RedirectResponse(
+                    request.url_for('login'), status_code=302
+                )
+            else:
+                return func(*args, **kwargs)
+        return sync_wrapper

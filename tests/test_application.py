@@ -38,6 +38,8 @@ class TestApplication:
         resp = test_client.get('/protected', allow_redirects=False)
 
         assert resp.status_code == 302
+        assert resp.headers.get('location') \
+               == 'http://testserver/login?next=/protected'
 
     def test_protected_page_after_login(self, test_client):
         _ = test_client.post('/login', data={

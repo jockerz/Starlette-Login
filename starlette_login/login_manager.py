@@ -23,7 +23,7 @@ class Config:
 
     # Skip backend authenticate method if user has been
     # loaded to scope
-    skip_user_loaded: bool = True
+    skip_user: bool = True
 
 
 class LoginManager(Config):
