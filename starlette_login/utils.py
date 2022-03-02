@@ -6,7 +6,6 @@ from urllib.parse import quote, urlparse, urlunparse
 
 from starlette.requests import Request
 
-from .configs import SESSION_KEY
 from .mixins import UserMixin, AnonymousUser
 
 
@@ -14,35 +13,66 @@ async def login_user(
     request: Request, user: UserMixin, remember: bool = False,
     duration: timedelta = None, fresh: bool = True
 ):
-    if user.identity is None:
-        return False
-    request.session[SESSION_KEY] = user.identity
-    request.session['_fresh'] = fresh
-    request.session['_id'] = _create_identifier(request)
+    login_manager = getattr(request.state, 'login_manager', None)
+    assert login_manager is not None, 'LoginManager state is not set'
+    assert user.identity is not None, \
+        'user identity implementation is required'
+
+    session_key = login_manager.config.SESSION_NAME_KEY
+    session_fresh = login_manager.config.SESSION_NAME_FRESH
+    session_id = login_manager.config.SESSION_NAME_ID
+
+    request.session[session_key] = user.identity
+    request.session[session_fresh] = fresh
+    request.session[session_id] = _create_identifier(request)
     if remember:
-        request.session['_remember'] = 'set'
+        request.session[
+            login_manager.config.REMEMBER_COOKIE_NAME
+        ] = 'set'
         if duration is not None:
-            request.session['_remember_seconds'] = duration.total_seconds()
+            request.session[
+                login_manager.config.REMEMBER_SECONDS_NAME
+            ] = duration.total_seconds()
     request.scope['user'] = user
     return True
 
 
 async def logout_user(request: Request):
-    request.session.clear()
-    if hasattr(request.session, 'regenerate_id'):
-        await request.session.regenerate_id()  # type: ignore
+    login_manager = getattr(request.state, 'login_manager', None)
+    assert login_manager is not None, 'LoginManager state is not set'
+
+    session_key = login_manager.config.SESSION_NAME_KEY
+    session_fresh = login_manager.config.SESSION_NAME_FRESH
+    session_id = login_manager.config.SESSION_NAME_ID
+    remember_cookie = login_manager.config.REMEMBER_COOKIE_NAME
+
+    if session_key in request.session:
+        request.session.pop(session_key)
+
+    if session_fresh in request.session:
+        request.session.pop(session_fresh)
+
+    if session_id in request.session:
+        request.session.pop(session_id)
+
+    if remember_cookie in request.cookies:
+        request.session[remember_cookie] = 'clear'
+        remember_seconds = login_manager.config.REMEMBER_SECONDS_NAME
+        if remember_seconds in request.session:
+            request.session.pop(remember_seconds)
+
     request.scope['user'] = AnonymousUser()
 
 
-def encode_cookie(payload, key=None):
+def encode_cookie(payload: str, key: str):
     return '{0}|{1}'.format(payload, _cookie_digest(payload, key=key))
 
 
-def decode_cookie(cookie, key=None):
+def decode_cookie(cookie: str, key: str):
     try:
         payload, digest = cookie.rsplit('|', 1)
         if hasattr(digest, 'decode'):
-            digest = digest.decode('ascii')  # pragma: no cover
+            digest = digest.decode('ascii')
     except ValueError:
         return
 
@@ -50,7 +80,7 @@ def decode_cookie(cookie, key=None):
         return payload
 
 
-def _get_remote_address(request):
+def _get_remote_address(request: Request):
     address = request.headers.get('X-Forwarded-For')
     if address is not None:
         address = address.split(',')[0].strip()

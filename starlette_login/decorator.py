@@ -18,9 +18,9 @@ def login_required(func: typing.Callable) -> typing.Callable:
     else:
         raise Exception(
             f'No "request" or "websocket" argument on function "{func}"'
-        )
+        )   # pragma: no cover
 
-    if type == 'websocket':
+    if parameter.name == 'websocket':
         @functools.wraps(func)
         async def websocket_wrapper(
             *args: typing.Any, **kwargs: typing.Any
@@ -28,6 +28,7 @@ def login_required(func: typing.Callable) -> typing.Callable:
             websocket = kwargs.get("websocket", args[idx] if args else None)
             assert isinstance(websocket, WebSocket)
 
+            print(f'ws: {websocket.scope}')
             user = websocket.scope.get('user')
             if user and getattr(user, 'is_authenticated', False) is False:
                 await websocket.close()
@@ -42,6 +43,12 @@ def login_required(func: typing.Callable) -> typing.Callable:
         ) -> Response:
             request = kwargs.get("request", args[idx] if args else None)
             assert isinstance(request, Request)
+
+            login_manager = getattr(request.state, 'login_manager', None)
+            assert login_manager is not None, 'LoginManager state is not set'
+
+            if request.method in login_manager.config.EXEMPT_METHODS:
+                return await func(*args, **kwargs)    # pragma: no cover
 
             user = request.scope.get('user')
             if user and getattr(user, 'is_authenticated', False) is False:
@@ -58,6 +65,12 @@ def login_required(func: typing.Callable) -> typing.Callable:
         def sync_wrapper(*args: typing.Any, **kwargs: typing.Any) -> Response:
             request = kwargs.get("request", args[idx] if args else None)
             assert isinstance(request, Request)
+
+            login_manager = getattr(request.state, 'login_manager', None)
+            assert login_manager is not None, 'LoginManager state is not set'
+
+            if request.method in login_manager.config.EXEMPT_METHODS:
+                return func(*args, **kwargs)    # pragma: no cover
 
             user = request.scope.get('user')
             if user and getattr(user, 'is_authenticated', False) is False:

@@ -3,16 +3,15 @@ import typing as t
 
 from starlette.requests import HTTPConnection
 
-from .configs import SESSION_KEY
 from .login_manager import LoginManager
 from .mixins import UserMixin
 
 
 class BaseAuthenticationBackend:
-    name: str = None
+    # name: str = None
 
     async def authenticate(self, request: HTTPConnection):
-        ...
+        ...     # pragma: no cover
 
 
 class SessionAuthBackend(BaseAuthenticationBackend):
@@ -22,11 +21,18 @@ class SessionAuthBackend(BaseAuthenticationBackend):
     async def authenticate(
         self, request: HTTPConnection
     ) -> t.Optional[UserMixin]:
-        user_id = request.session.get(SESSION_KEY)
+        # Load user from session
+        session_key = self.login_manager.config.SESSION_NAME_KEY
+        user_id = request.session.get(session_key)
         if user_id is None:
             return
 
         if asyncio.iscoroutinefunction(self.login_manager.user_loader):
-            return await self.login_manager.user_loader(request, user_id)
+            user = await self.login_manager.user_loader(request, user_id)
         else:
-            return self.login_manager.user_loader(request, user_id)
+            user = self.login_manager.user_loader(request, user_id)
+
+        if user is not None:
+            return user
+
+        # Load user from Remember Me Cookie

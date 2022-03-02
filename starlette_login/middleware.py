@@ -13,8 +13,8 @@ class AuthenticationMiddleware:
         app: ASGIApp,
         backend: BaseAuthenticationBackend,
         login_manager: LoginManager,
-        login_route: str,
         secret_key: str,
+        login_route: str = None,
         excluded_dirs: t.List[str] = None
     ):
         self.app = app
@@ -25,7 +25,7 @@ class AuthenticationMiddleware:
         self.excluded_dirs = excluded_dirs or []
 
     async def __call__(self, scope: Scope, receive: Receive, send: Send) -> None:
-        if scope["type"] not in ["http", "websocket"]:
+        if scope["type"] not in ["http", "websocket"]:  # pragma: no cover
             await self.app(scope, receive, send)
             return
 
@@ -36,6 +36,8 @@ class AuthenticationMiddleware:
                 return
 
         conn = HTTPConnection(scope)
+        conn.state.login_manager = self.login_manager
+
         if 'user' not in scope:
             scope['user'] = self.login_manager.anonymous_user_cls()
         elif getattr(scope['user'], 'is_authenticated', False) is True \

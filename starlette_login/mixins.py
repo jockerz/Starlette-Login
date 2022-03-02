@@ -2,7 +2,9 @@ from starlette.authentication import BaseUser
 
 
 class UserMixin(BaseUser):
-    ...
+    @property
+    def is_authenticated(self) -> bool:
+        return True
 
 
 class AnonymousUser(UserMixin):

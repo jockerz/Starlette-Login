@@ -58,6 +58,9 @@ class UserList:
     def user_loader(self, request: Request, user_id: int):
         return self.get_by_id(user_id)
 
+    async def async_user_loader(self, request: Request, user_id: int):
+        return self.get_by_id(user_id)
+
 
 user_list = UserList()
 user_list.add(User(identifier=1, username='user1', password='password'))

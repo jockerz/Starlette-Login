@@ -23,10 +23,8 @@ edit_uri: ""
 
 nav:
   - Starlette-Login: index.md
-  - Configuration: configuration.md
   - Login Manager: login-manager.md
-  - Tutorial:
-    - tutorial/index.md
   - Advance:
     - advance/index.md
+    - Configuration: advance/configuration.md
   - Contribution: contribution.md
