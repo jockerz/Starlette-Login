@@ -12,7 +12,7 @@ from .mixins import UserMixin, AnonymousUser
 async def login_user(
     request: Request, user: UserMixin, remember: bool = False,
     duration: timedelta = None, fresh: bool = True
-):
+) -> bool:
     login_manager = getattr(request.state, 'login_manager', None)
     assert login_manager is not None, 'LoginManager state is not set'
     assert user.identity is not None, \
@@ -37,7 +37,7 @@ async def login_user(
     return True
 
 
-async def logout_user(request: Request):
+async def logout_user(request: Request) -> None:
     login_manager = getattr(request.state, 'login_manager', None)
     assert login_manager is not None, 'LoginManager state is not set'
 
@@ -64,11 +64,11 @@ async def logout_user(request: Request):
     request.scope['user'] = AnonymousUser()
 
 
-def encode_cookie(payload: str, key: str):
+def encode_cookie(payload: str, key: str) -> str:
     return '{0}|{1}'.format(payload, _cookie_digest(payload, key=key))
 
 
-def decode_cookie(cookie: str, key: str):
+def decode_cookie(cookie: str, key: str) -> typing.Optional[str]:
     try:
         payload, digest = cookie.rsplit('|', 1)
         if hasattr(digest, 'decode'):
@@ -80,16 +80,20 @@ def decode_cookie(cookie: str, key: str):
         return payload
 
 
-def _get_remote_address(request: Request):
+def _get_remote_address(request: Request) -> typing.Optional[str]:
     address = request.headers.get('X-Forwarded-For')
     if address is not None:
         address = address.split(',')[0].strip()
     else:
-        address = request.scope.get('client')[0]
+        client = request.scope.get('client')
+        if client is not None:
+            address = client[0]
+        else:
+            address = None
     return address
 
 
-def _create_identifier(request):
+def _create_identifier(request) -> str:
     user_agent = request.headers.get('User-Agent')
     if user_agent is not None:
         user_agent = user_agent.encode('utf-8')
@@ -99,19 +103,21 @@ def _create_identifier(request):
     return h.hexdigest()
 
 
-def _secret_key(secret_key: typing.Union[bytes, str]):
+def _secret_key(secret_key: typing.Union[bytes, str]) -> bytes:
     """ensure bytes"""
     if isinstance(secret_key, str):
         return secret_key.encode('latin1')
     return secret_key
 
 
-def _cookie_digest(payload: str, key: str):
+def _cookie_digest(payload: str, key: str) -> str:
     key = _secret_key(key)
     return hmac.new(key, payload.encode('utf-8'), sha512).hexdigest()
 
 
-def make_next_url(redirect_url: str, next_url: str = None):
+def make_next_url(
+    redirect_url: str, next_url: str = None
+) -> typing.Optional[str]:
     if next_url is None:
         return redirect_url
     
