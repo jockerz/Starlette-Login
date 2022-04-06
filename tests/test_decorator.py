@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
@@ -44,3 +46,18 @@ class TestLoginRequiredDecorator:
         with test_client.websocket_connect('/ws_protected') as ws:
             data = ws.receive_json()
             assert data.get('username') == 'user1'
+
+    @pytest.mark.parametrize('path', ['/fresh', '/fresh_async'])
+    async def test_fresh_login(self, test_client, path):
+        test_client.post('/login', data={
+            'username': 'user1', 'password': 'password'
+        })
+
+        resp = test_client.get(path)
+        assert resp.status_code == 200
+
+        # Set fresh session False
+        test_client.get('/un_fresh')
+
+        resp = test_client.get(path)
+        assert f'/login?next={path}' in resp.url

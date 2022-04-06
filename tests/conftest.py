@@ -14,7 +14,7 @@ from starlette.testclient import TestClient
 from starlette.websockets import WebSocket
 
 from starlette_login.backends import SessionAuthBackend
-from starlette_login.decorator import login_required
+from starlette_login.decorator import login_required, fresh_login_required
 from starlette_login.middleware import AuthenticationMiddleware
 from starlette_login.utils import login_user, logout_user
 
@@ -35,8 +35,6 @@ LOGIN_PAGE = """
 
 async def login_page(request: Request):
     error = ''
-    if request.user.is_authenticated:
-        return RedirectResponse('/', 302)
     if request.method == 'POST':
         body = (await request.body()).decode()
         data = dict(parse_qsl(body))
@@ -82,6 +80,25 @@ def sync_protected_page(request: Request):
     )
 
 
+@fresh_login_required
+def sync_fresh_login(request: Request):
+    result = {'cookie': request.cookies, 'session': request.session}
+    return JSONResponse(result)
+
+
+@fresh_login_required
+async def async_fresh_login(request: Request):
+    result = {'cookie': request.cookies, 'session': request.session}
+    return JSONResponse(result)
+
+
+def un_fresh_login(request: Request):
+    session_fresh = login_manager.config.SESSION_NAME_FRESH
+    request.session[session_fresh] = False
+    result = {'cookie': request.cookies, 'session': request.session}
+    return JSONResponse(result)
+
+
 async def excluded(request: Request):
     try:
         user = request.user
@@ -97,41 +114,48 @@ async def excluded(request: Request):
 @login_required
 async def websocket_protected(websocket: WebSocket):
     await websocket.accept()
-    await websocket.send_json({'username': websocket.user.username})
+    await websocket.send_json({
+        'username': websocket.user.username,
+        'session': websocket.session
+    })
     await websocket.close()
 
 
 @pytest.mark.asynctio
 @pytest.fixture
 async def app():
+    routes = [
+        Route('/', home_page, name='home'),
+        Route('/login', login_page, methods=['GET', 'POST'], name='login'),
+        Route('/logout', logout_page, name='logout'),
+        Route('/protected', protected_page, name='protected'),
+        Route('/fresh', sync_fresh_login, name='sync_fresh_login'),
+        Route('/fresh_async', async_fresh_login, name='async_fresh_login'),
+        Route('/un_fresh', un_fresh_login, name='un_fresh'),
+        Route(
+            '/sync_protected', sync_protected_page,
+            name='sync_protected_page'
+        ),
+        Route('/excluded', excluded, name='excluded'),
+        WebSocketRoute(
+            '/ws_protected', websocket_protected, name='ws_protected'
+        )
+    ]
+    middlewares = [
+        Middleware(SessionMiddleware, secret_key='secret'),
+        Middleware(
+            AuthenticationMiddleware,
+            backend=SessionAuthBackend(login_manager),
+            login_manager=login_manager,
+            login_route='login',
+            secret_key='secret',
+            excluded_dirs=['/excluded']
+        )
+    ]
     application = Starlette(
-        debug=True,
-        routes=[
-            Route('/', home_page, name='home'),
-            Route('/login', login_page, methods=['GET', 'POST'], name='login'),
-            Route('/logout', logout_page, name='logout'),
-            Route('/protected', protected_page, name='protected'),
-            Route(
-                '/sync_protected', sync_protected_page,
-                name='sync_protected_page'
-            ),
-            Route('/excluded', excluded, name='excluded'),
-            WebSocketRoute(
-                '/ws_protected', websocket_protected, name='ws_protected'
-            )
-        ],
-        middleware=[
-            Middleware(SessionMiddleware, secret_key='secret'),
-            Middleware(
-                AuthenticationMiddleware,
-                backend=SessionAuthBackend(login_manager),
-                login_manager=login_manager,
-                login_route='login',
-                secret_key='secret',
-                excluded_dirs=['/excluded']
-            )
-        ]
+        debug=True, routes=routes, middleware=middlewares
     )
+    application.state.login_manager = login_manager
     return application
 
 

@@ -36,7 +36,6 @@ class AuthenticationMiddleware:
                 return
 
         conn = HTTPConnection(scope)
-        conn.state.login_manager = self.login_manager
 
         if 'user' not in scope:
             scope['user'] = self.login_manager.anonymous_user_cls()
