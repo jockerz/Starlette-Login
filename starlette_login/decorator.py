@@ -54,7 +54,7 @@ def login_required(func: typing.Callable) -> typing.Callable:
             user = request.scope.get('user')
             if not user or getattr(user, 'is_authenticated', False) is False:
                 redirect_url = make_next_url(
-                    request.url_for(login_manager.redirect_to),
+                    login_manager.build_redirect_url(request),
                     str(request.url)
                 )
                 return RedirectResponse(redirect_url, status_code=302)
@@ -77,7 +77,7 @@ def login_required(func: typing.Callable) -> typing.Callable:
             user = request.scope.get('user')
             if not user or getattr(user, 'is_authenticated', False) is False:
                 redirect_url = make_next_url(
-                    request.url_for(login_manager.redirect_to),
+                    login_manager.build_redirect_url(request),
                     str(request.url)
                 )
                 return RedirectResponse(redirect_url, status_code=302)
@@ -112,8 +112,9 @@ def fresh_login_required(func: typing.Callable) -> typing.Callable:
             if not user \
                     or getattr(user, 'is_authenticated', False) is False \
                     or websocket.session.get(session_fresh, False) is False:
-                session_name = login_manager.config.SESSION_NAME_ID
-                websocket.session[session_name] = create_identifier(websocket)
+                websocket.session[
+                    login_manager.config.SESSION_NAME_ID
+                ] = create_identifier(websocket)
                 await websocket.close()
             else:
                 await func(*args, **kwargs)
@@ -138,11 +139,12 @@ def fresh_login_required(func: typing.Callable) -> typing.Callable:
             if not user \
                     or getattr(user, 'is_authenticated', False) is False \
                     or request.session.get(session_fresh, False) is False:
-                session_name = login_manager.config.SESSION_NAME_ID
-                request.session[session_name] = create_identifier(request)
+                request.session[
+                    login_manager.config.SESSION_NAME_ID
+                ] = create_identifier(request)
 
                 return RedirectResponse(make_next_url(
-                    request.url_for(login_manager.redirect_to),
+                    login_manager.build_redirect_url(request),
                     str(request.url)
                 ), status_code=302)
             else:
@@ -163,15 +165,15 @@ def fresh_login_required(func: typing.Callable) -> typing.Callable:
             session_fresh = login_manager.config.SESSION_NAME_FRESH
 
             user = request.scope.get('user')
-            print(f'request.session.get(session_fresh, False): {request.session.get(session_fresh, False)}')
             if not user \
                     or getattr(user, 'is_authenticated', False) is False \
                     or request.session.get(session_fresh, False) is False:
-                session_name = login_manager.config.SESSION_NAME_ID
-                request.session[session_name] = create_identifier(request)
+                request.session[
+                    login_manager.config.SESSION_NAME_ID
+                ] = create_identifier(request)
 
                 return RedirectResponse(make_next_url(
-                    request.url_for(login_manager.redirect_to),
+                    login_manager.build_redirect_url(request),
                     str(request.url)
                 ), status_code=302)
             else:

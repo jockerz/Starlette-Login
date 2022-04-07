@@ -25,9 +25,9 @@ async def login_user(
     assert user.identity is not None, \
         'user identity implementation is required'
 
-    session_key = login_manager.config.SESSION_NAME_KEY
     session_fresh = login_manager.config.SESSION_NAME_FRESH
     session_id = login_manager.config.SESSION_NAME_ID
+    session_key = login_manager.config.SESSION_NAME_KEY
 
     request.session[session_key] = user.identity
     request.session[session_fresh] = fresh
@@ -72,7 +72,7 @@ async def logout_user(request: Request) -> None:
 
 
 def encode_cookie(payload: str, key: str) -> str:
-    return '{0}|{1}'.format(payload, _cookie_digest(payload, key=key))
+    return f'{payload}|{_cookie_digest(payload, key=key)}'
 
 
 def decode_cookie(cookie: str, key: str) -> typing.Optional[str]:
@@ -98,7 +98,9 @@ def make_next_url(
 
     if (not r_url.scheme or r_url.scheme == n_url.scheme) and \
             (not n_url.netloc or n_url.netloc == n_url.netloc):
-        param_next = urlunparse(('', '', n_url.path, n_url.params, n_url.query, ''))
+        param_next = urlunparse((
+            '', '', n_url.path, n_url.params, n_url.query, ''
+        ))
     else:
         param_next = next_url
 
@@ -144,4 +146,6 @@ def _secret_key(secret_key: typing.Union[bytes, str]) -> bytes:
 
 def _cookie_digest(payload: str, key: str) -> str:
     key = _secret_key(key)
+    if not isinstance(payload, str):
+        payload = str(payload)
     return hmac.new(key, payload.encode('utf-8'), sha512).hexdigest()

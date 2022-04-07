@@ -40,4 +40,15 @@ class TestLogin:
         resp = test_client.get('/protected', allow_redirects=False)
         assert resp.status_code == 302
 
+    async def test_remember_me(self, test_client):
+        _ = test_client.post('/login', data={
+            'username': 'user1', 'password': 'password',
+            'remember': True
+        })
+        resp = test_client.get('/request_data')
+        data = resp.json()
 
+        assert resp.status_code == 200
+        assert data['session']['_remember'] == 'set'
+
+        assert 0

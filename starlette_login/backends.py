@@ -3,7 +3,7 @@ import typing as t
 
 from starlette.requests import HTTPConnection
 
-from .login_manager import LoginManager
+from .login_manager import LoginManager, ProtectionLevel
 from .mixins import UserMixin
 
 
@@ -24,15 +24,40 @@ class SessionAuthBackend(BaseAuthenticationBackend):
         # Load user from session
         session_key = self.login_manager.config.SESSION_NAME_KEY
         user_id = request.session.get(session_key)
+
+        # Using Strong protection
+        if self.login_manager.strong_protection:
+            for key in self.login_manager.config.session_keys:
+                try:
+                    request.session.pop(key)
+                except KeyError:
+                    pass
+            request.session[
+                self.login_manager.config.REMEMBER_COOKIE_NAME
+            ] = 'clear'
+        else:
+            request.session[
+                self.login_manager.config.SESSION_NAME_FRESH
+            ] = False
+
+        if user_id is None and request.session.get(
+            self.login_manager.config.REMEMBER_COOKIE_NAME, 'clear'
+        ) != 'clear':
+            cookie = request.cookies.get(
+                self.login_manager.config.COOKIE_NAME
+            )
+            if cookie:
+                user_id = self.login_manager.get_cookie(cookie)
+                user_id = int(user_id)
+                request.session[
+                    self.login_manager.config.SESSION_NAME_FRESH
+                ] = False
+
         if user_id is None:
             return
-
-        if asyncio.iscoroutinefunction(self.login_manager.user_loader):
+        elif asyncio.iscoroutinefunction(self.login_manager.user_loader):
             user = await self.login_manager.user_loader(request, user_id)
         else:
             user = self.login_manager.user_loader(request, user_id)
-
         if user is not None:
             return user
-
-        # Load user from Remember Me Cookie
