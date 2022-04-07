@@ -75,8 +75,7 @@ class LoginManager:
             return self.redirect_to
         return request.url_for(self.redirect_to)
 
-    @property
-    def strong_protection(self):
+    def protection_is_strong(self):
         return self.config.protection_level == ProtectionLevel.Strong
 
     def set_cookie(self, response: Response, user_id: t.Any):

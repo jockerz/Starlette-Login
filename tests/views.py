@@ -123,23 +123,3 @@ async def excluded(request: Request):
     return JSONResponse({
         'user': getattr(user, 'username', None)
     })
-
-
-@login_required
-async def websocket_protected(websocket: WebSocket):
-    await websocket.accept()
-    await websocket.send_json({
-        'username': websocket.user.username,
-        'session': websocket.session
-    })
-    await websocket.close()
-
-
-@fresh_login_required
-async def websocket_fresh(websocket: WebSocket):
-    await websocket.accept()
-    await websocket.send_json({
-        'username': websocket.user.username,
-        'session': websocket.session
-    })
-    await websocket.close()

@@ -51,4 +51,13 @@ class TestLogin:
         assert resp.status_code == 200
         assert data['session']['_remember'] == 'set'
 
-        assert 0
+    async def test_remember_me_strong_protection(self, secure_test_client):
+        _ = secure_test_client.post('/login', data={
+            'username': 'user1', 'password': 'password',
+            'remember': True
+        })
+
+        resp = secure_test_client.get('/request_data')
+        data = resp.json()
+        assert resp.status_code == 200
+        assert data['session']['_remember'] == 'clear'

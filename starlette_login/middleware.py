@@ -1,12 +1,11 @@
 import typing as t
 
-import anyio
 from starlette.middleware.base import (
     BaseHTTPMiddleware, RequestResponseEndpoint
 )
 from starlette.requests import Request
-from starlette.responses import Response, StreamingResponse
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.responses import Response
+from starlette.types import ASGIApp
 
 from .backends import BaseAuthenticationBackend
 from .login_manager import LoginManager
@@ -49,6 +48,10 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         response = await call_next(request)
 
         if user and user.is_authenticated:
-            self.login_manager.set_cookie(response, user.identity)
+            operation = request.session.get(
+                self.login_manager.config.REMEMBER_COOKIE_NAME
+            )
+            if operation == 'set':
+                self.login_manager.set_cookie(response, user.identity)
 
         return response

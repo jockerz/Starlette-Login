@@ -5,7 +5,6 @@ import typing
 
 from starlette.requests import Request
 from starlette.responses import Response, RedirectResponse
-from starlette.websockets import WebSocket
 
 from .utils import create_identifier, make_next_url
 
@@ -15,29 +14,14 @@ LOGIN_MANAGER_ERROR = 'LoginManager is not set'
 def login_required(func: typing.Callable) -> typing.Callable:
     sig = inspect.signature(func)
     for idx, parameter in enumerate(sig.parameters.values()):
-        if parameter.name == "request" or parameter.name == "websocket":
+        if parameter.name == "request":
             break
     else:
         raise Exception(
-            f'No "request" or "websocket" argument on function "{func}"'
+            f'No "request" argument on function "{func}"'
         )   # pragma: no cover
 
-    if parameter.name == 'websocket':
-        @functools.wraps(func)
-        async def websocket_wrapper(
-            *args: typing.Any, **kwargs: typing.Any
-        ) -> None:
-            websocket = kwargs.get("websocket", args[idx] if args else None)
-            assert isinstance(websocket, WebSocket)
-
-            user = websocket.scope.get('user')
-            if not user or getattr(user, 'is_authenticated', False) is False:
-                await websocket.close()
-            else:
-                await func(*args, **kwargs)
-        return websocket_wrapper
-
-    elif asyncio.iscoroutinefunction(func):
+    if asyncio.iscoroutinefunction(func):
         @functools.wraps(func)
         async def async_wrapper(
             *args: typing.Any, **kwargs: typing.Any
@@ -61,7 +45,6 @@ def login_required(func: typing.Callable) -> typing.Callable:
             else:
                 return await func(*args, **kwargs)
         return async_wrapper
-
     else:
         @functools.wraps(func)
         def sync_wrapper(*args: typing.Any, **kwargs: typing.Any) -> Response:
@@ -89,38 +72,14 @@ def login_required(func: typing.Callable) -> typing.Callable:
 def fresh_login_required(func: typing.Callable) -> typing.Callable:
     sig = inspect.signature(func)
     for idx, parameter in enumerate(sig.parameters.values()):
-        if parameter.name == "request" or parameter.name == "websocket":
+        if parameter.name == "request":
             break
     else:
         raise Exception(
-            f'No "request" or "websocket" argument on function "{func}"'
+            f'No "request" argument on function "{func}"'
         )   # pragma: no cover
 
-    if parameter.name == 'websocket':
-        @functools.wraps(func)
-        async def websocket_wrapper(
-            *args: typing.Any, **kwargs: typing.Any
-        ) -> None:
-            websocket = kwargs.get("websocket", args[idx] if args else None)
-            assert isinstance(websocket, WebSocket)
-            login_manager = getattr(websocket.app.state, 'login_manager', None)
-            assert login_manager is not None, LOGIN_MANAGER_ERROR
-
-            session_fresh = login_manager.config.SESSION_NAME_FRESH
-
-            user = websocket.scope.get('user')
-            if not user \
-                    or getattr(user, 'is_authenticated', False) is False \
-                    or websocket.session.get(session_fresh, False) is False:
-                websocket.session[
-                    login_manager.config.SESSION_NAME_ID
-                ] = create_identifier(websocket)
-                await websocket.close()
-            else:
-                await func(*args, **kwargs)
-        return websocket_wrapper
-
-    elif asyncio.iscoroutinefunction(func):
+    if asyncio.iscoroutinefunction(func):
         @functools.wraps(func)
         async def async_wrapper(
             *args: typing.Any, **kwargs: typing.Any
@@ -150,7 +109,6 @@ def fresh_login_required(func: typing.Callable) -> typing.Callable:
             else:
                 return await func(*args, **kwargs)
         return async_wrapper
-
     else:
         @functools.wraps(func)
         def sync_wrapper(*args: typing.Any, **kwargs: typing.Any) -> Response:

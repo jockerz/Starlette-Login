@@ -26,7 +26,7 @@ class SessionAuthBackend(BaseAuthenticationBackend):
         user_id = request.session.get(session_key)
 
         # Using Strong protection
-        if self.login_manager.strong_protection:
+        if self.login_manager.protection_is_strong():
             for key in self.login_manager.config.session_keys:
                 try:
                     request.session.pop(key)
@@ -59,5 +59,6 @@ class SessionAuthBackend(BaseAuthenticationBackend):
             user = await self.login_manager.user_loader(request, user_id)
         else:
             user = self.login_manager.user_loader(request, user_id)
+
         if user is not None:
             return user

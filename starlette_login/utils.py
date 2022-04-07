@@ -25,19 +25,23 @@ async def login_user(
     assert user.identity is not None, \
         'user identity implementation is required'
 
-    session_fresh = login_manager.config.SESSION_NAME_FRESH
-    session_id = login_manager.config.SESSION_NAME_ID
-    session_key = login_manager.config.SESSION_NAME_KEY
-
-    request.session[session_key] = user.identity
-    request.session[session_fresh] = fresh
-    request.session[session_id] = create_identifier(request)
+    request.session[
+        login_manager.config.SESSION_NAME_KEY
+    ] = user.identity
+    request.session[
+        login_manager.config.SESSION_NAME_FRESH
+    ] = fresh
+    request.session[
+        login_manager.config.SESSION_NAME_ID
+    ] = create_identifier(request)
     if remember:
-        remember_cookie = login_manager.config.REMEMBER_COOKIE_NAME
-        request.session[remember_cookie] = 'set'
+        request.session[
+            login_manager.config.REMEMBER_COOKIE_NAME
+        ] = 'set'
         if duration is not None:
-            r_cookie_seconds = login_manager.config.REMEMBER_SECONDS_NAME
-            request.session[r_cookie_seconds] = duration.total_seconds()
+            request.session[
+                login_manager.config.REMEMBER_SECONDS_NAME
+            ] = duration.total_seconds()
     request.scope['user'] = user
     return True
 
