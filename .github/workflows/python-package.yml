@@ -45,3 +45,4 @@ jobs:
         token: ${{ secrets.COV_STARLETTE_LOGIN }}
         files: /home/runner/coverage.xml
         verbose: true
+        version: "v0.1.15"
