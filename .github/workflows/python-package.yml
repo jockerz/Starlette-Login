@@ -42,7 +42,7 @@ jobs:
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
-        token: {{ secrets.Cov_starlette_login }}
+        token: ${{ secrets.Cov_starlette_login }}
         directory: ./coverage/reports/
         env_vars: OS,PYTHON
         path_to_write_report: ./coverage/codecov_report.txt
