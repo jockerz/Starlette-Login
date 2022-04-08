@@ -38,10 +38,6 @@ jobs:
     #    flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        pytest --cov starlette_login/ --cov-report xml:/home/runner/coverage.xml
-    - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v2
-      with:
-        files: /home/runner/coverage.xml
-        verbose: true
-        version: "v0.1.15"
+        pytest --cov=starlette_login/ --cov-report=xml tests
+    - name: Upload coverage
+      uses: codecov/codecov-action@v1
