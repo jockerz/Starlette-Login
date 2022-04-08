@@ -1,7 +1,7 @@
 
 <p class="center">
-  <a href='https://coveralls.io/github/jockerz/Starlette-Login?branch=main'>
-    <img src='https://coveralls.io/repos/github/jockerz/Starlette-Login/badge.svg?branch=main' alt='Coverage Status' />
+  <a href="https://codecov.io/gh/jockerz/Starlette-Login" target="_blank">
+    <img src="https://img.shields.io/codecov/c/github/jockerz/Starlette-Login?color=%2334D058" alt="Coverage">
   </a>
   <a href="https://github.com/encode/starlette/actions">
     <img src='https://github.com/jockerz/Starlette-Login/actions/workflows/python-package.yml/badge.svg' alt='Test Status' />
