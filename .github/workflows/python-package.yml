@@ -42,7 +42,6 @@ jobs:
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
       with:
-        token: ${{ secrets.COV_STARLETTE_LOGIN }}
         files: /home/runner/coverage.xml
         verbose: true
         version: "v0.1.15"
