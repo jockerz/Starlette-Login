@@ -6,7 +6,14 @@
   <a href="https://github.com/encode/starlette/actions">
     <img src='https://github.com/jockerz/Starlette-Login/actions/workflows/python-package.yml/badge.svg' alt='Test Status' />
   </a>
+  <a href="https://pypi.org/project/Starlette-Login">
+    <img src='https://img.shields.io/pypi/v/Starlette-Login?color=%2334D058&label=pypi%20package' alt='Package Version' />
+  </a>
+  <a href="https://pypi.org/project/Starlette-Login">
+    <img src='https://img.shields.io/pypi/pyversions/Starlette-Login.svg?color=%2334D058' alt='Supported Python versions' />
+  </a>
 </p>
+
 
 ## Introduction
 
@@ -18,10 +25,10 @@ it handles the common tasks of logging in, logging out,
 and remembering your users' sessions over extended periods of time.
 
 
-## Installation (_The Pypi version be released soon_)
+## Installation
 
 ```shell
-pip install 'git+https://github.com/jockerz/Starlette-Login'
+pip install Starlette-Login
 ```
 
 
