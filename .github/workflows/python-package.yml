@@ -38,6 +38,12 @@ jobs:
     #    flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
     - name: Test with pytest
       run: |
-        coverage run -m pytest 
+        coverage run --source=apps -m pytest tests/
     - name: Upload Coverage to Codecov
       uses: codecov/codecov-action@v2
+      with:
+        token: {{ secrets.Cov_starlette_login }}
+        directory: ./coverage/reports/
+        env_vars: OS,PYTHON
+        path_to_write_report: ./coverage/codecov_report.txt
+        verbose: true
