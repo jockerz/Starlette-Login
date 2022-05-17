@@ -12,6 +12,9 @@
   <a href="https://pypi.org/project/Starlette-Login">
     <img src='https://img.shields.io/pypi/pyversions/Starlette-Login.svg?color=%2334D058' alt='Supported Python versions' />
   </a>
+  <a href='https://starlette-login.readthedocs.io/en/stable/?badge=stable'>
+    <img src='https://readthedocs.org/projects/starlette-login/badge/?version=stable' alt='Documentation Status' />
+  </a>
 </p>
 
 
