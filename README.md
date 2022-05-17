@@ -17,7 +17,7 @@
 
 ## Introduction
 
-[Documentation][https://starlette-login.readthedocs.io]
+[Documentation](https://starlette-login.readthedocs.io)
 
 Starlette-Login provides user session management for Starlette.
 Much inspired by [Flask-Login][Flask-Login], 

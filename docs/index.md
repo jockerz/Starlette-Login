@@ -1,6 +1,10 @@
 # Starlette-Login
 
+Repository: [Starlette-Login](https://github.com/jockerz/Starlette-Login)
+
+
 Starlette-Login provides user session management for Starlette.
+
 Much inspired by [Flask-Login][Flask-Login],
 it handles the common tasks of logging in, logging out,
 and remembering your users' sessions over extended periods of time.
@@ -13,17 +17,24 @@ Key features:
 - Handle "remember-me" functionality
 
 
-## Installation (_The Pypi version be released soon_)
+## Installation
 
+Stable
+```shell
+pip install Starlette-Login
+```
+
+Development
 ```shell
 pip install 'git+https://github.com/jockerz/Starlette-Login'
 ```
 
 ## Usage Examples
 
- - Basic Auth: `https://github.com/jockerz/Starlette-Login-Example/tree/main/basic_auth`
+ - [Basic Auth](https://github.com/jockerz/Starlette-Login-Example/tree/main/basic_auth)
  - Token Auth: *TODO*
  - Multiple Auth: *TODO*
+
 
 ## Usage
 
