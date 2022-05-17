@@ -16,15 +16,18 @@ theme:
       toggle:
         icon: 'material/lightbulb-outline'
         name: 'Switch to light mode'
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+  - pymdownx.superfences
 
 repo_name: jockerz/Starlette-Login
 repo_url: https://github.com/jockerz/Starlette-Login
 edit_uri: ""
 
 nav:
-  - Starlette-Login: index.md
-  - Login Manager: login-manager.md
+  - Basic: index.md
   - Advance:
-    - advance/index.md
+    - Login Manager: advance/login-manager.md
     - Configuration: advance/configuration.md
   - Contribution: contribution.md

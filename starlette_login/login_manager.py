@@ -3,7 +3,7 @@ from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
 
-from starlette.requests import HTTPConnection, Request
+from starlette.requests import HTTPConnection
 from starlette.responses import Response
 
 from .mixins import AnonymousUser
@@ -17,24 +17,24 @@ class ProtectionLevel(Enum):
 
 @dataclass
 class Config:
-    SESSION_NAME_FRESH = '_fresh'
-    SESSION_NAME_ID = '_id'
-    SESSION_NAME_KEY = '_user_id'
-    SESSION_NAME_NEXT = 'next'
+    SESSION_NAME_FRESH: str = '_fresh'
+    SESSION_NAME_ID: str = '_id'
+    SESSION_NAME_KEY: str = '_user_id'
+    SESSION_NAME_NEXT: str = 'next'
 
-    REMEMBER_COOKIE_NAME = '_remember'
-    REMEMBER_SECONDS_NAME = '_remember_seconds'
-    EXEMPT_METHODS = {'OPTIONS'}
+    REMEMBER_COOKIE_NAME: str = '_remember'
+    REMEMBER_SECONDS_NAME: str = '_remember_seconds'
+    EXEMPT_METHODS: t.Tuple = ('OPTIONS')
 
     protection_level: t.Optional[ProtectionLevel] = ProtectionLevel.Basic
 
     # Cookie configuration
-    COOKIE_NAME = 'remember_token'
+    COOKIE_NAME: str = 'remember_token'
     COOKIE_DOMAIN: t.Optional[str] = None
     COOKIE_PATH: str = '/'
     COOKIE_SECURE: bool = False
     COOKIE_HTTPONLY: bool = True
-    COOKIE_SAMESITE = None
+    COOKIE_SAMESITE: t.Optional[str] = None
     COOKIE_DURATION: timedelta = timedelta(days=365)
 
     @property
