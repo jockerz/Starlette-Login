@@ -17,6 +17,8 @@ theme:
         icon: 'material/lightbulb-outline'
         name: 'Switch to light mode'
 markdown_extensions:
+  - admonition
+  - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
   - pymdownx.superfences
@@ -27,7 +29,9 @@ edit_uri: ""
 
 nav:
   - Basic: index.md
-  - Advance:
-    - Login Manager: advance/login-manager.md
-    - Configuration: advance/configuration.md
+  - Customization:
+    - Login Manager: custom/login-manager.md
+    - Configuration: custom/configuration.md
+  - Advance Usage:
+    - Custom Decorator: advance/decorators.md
   - Contribution: contribution.md

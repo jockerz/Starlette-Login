@@ -20,7 +20,7 @@
 
 ## Introduction
 
-[Documentation](https://starlette-login.readthedocs.io)
+[https://starlette-login.readthedocs.io](https://starlette-login.readthedocs.io/en/stable/)
 
 Starlette-Login provides user session management for Starlette.
 Much inspired by [Flask-Login][Flask-Login], 

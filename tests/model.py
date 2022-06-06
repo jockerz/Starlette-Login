@@ -7,9 +7,10 @@ from starlette_login.mixins import BaseUser
 
 @dataclass
 class User(BaseUser):
-    identifier: int
+    id: int
     username: str
     password: str = 'password'
+    is_admin: bool = False
 
     def check_password(self, password: str):
         return self.password == password
@@ -24,7 +25,7 @@ class User(BaseUser):
 
     @property
     def identity(self) -> int:
-        return self.identifier
+        return self.id
 
 
 class UserList:
@@ -63,5 +64,8 @@ class UserList:
 
 
 user_list = UserList()
-user_list.add(User(identifier=1, username='user1', password='password'))
-user_list.add(User(identifier=2, username='user2', password='password'))
+user_list.add(User(id=1, username='user1', password='password'))
+user_list.add(User(id=2, username='user2', password='password'))
+user_list.add(
+    User(id=3, username='admin', password='password', is_admin=True)
+)

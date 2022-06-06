@@ -57,3 +57,28 @@ class TestFreshLoginRequiredDecorator:
 
         resp = test_client.get(path)
         assert f'/login?next={path}' in resp.url
+
+
+@pytest.mark.asyncio
+class TestAdminOnlyDecorator:
+    async def test_regular_user(
+        self, test_client,
+    ):
+        test_client.post('/login', data={
+            'username': 'user1', 'password': 'password'
+        })
+
+        path = '/admin_only'
+        resp = test_client.get(path)
+        assert resp.status_code == 403
+
+    async def test_regular_admin(
+            self, test_client,
+    ):
+        test_client.post('/login', data={
+            'username': 'admin', 'password': 'password'
+        })
+
+        path = '/admin_only'
+        resp = test_client.get(path)
+        assert resp.status_code == 200

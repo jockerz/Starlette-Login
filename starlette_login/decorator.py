@@ -11,15 +11,20 @@ from .utils import create_identifier, make_next_url
 LOGIN_MANAGER_ERROR = 'LoginManager is not set'
 
 
-def login_required(func: typing.Callable) -> typing.Callable:
+def is_route_function(func: typing.Callable) -> int:
+    # Validate that the function received a Request instance argument
     sig = inspect.signature(func)
-    for idx, parameter in enumerate(sig.parameters.values()):
+    for index_num, parameter in enumerate(sig.parameters.values()):
         if parameter.name == "request":
-            break
+            return index_num
     else:
         raise Exception(
             f'No "request" argument on function "{func}"'
         )   # pragma: no cover
+
+
+def login_required(func: typing.Callable) -> typing.Callable:
+    idx = is_route_function(func)
 
     if asyncio.iscoroutinefunction(func):
         @functools.wraps(func)
@@ -70,14 +75,7 @@ def login_required(func: typing.Callable) -> typing.Callable:
 
 
 def fresh_login_required(func: typing.Callable) -> typing.Callable:
-    sig = inspect.signature(func)
-    for idx, parameter in enumerate(sig.parameters.values()):
-        if parameter.name == "request":
-            break
-    else:
-        raise Exception(
-            f'No "request" argument on function "{func}"'
-        )   # pragma: no cover
+    idx = is_route_function(func)
 
     if asyncio.iscoroutinefunction(func):
         @functools.wraps(func)

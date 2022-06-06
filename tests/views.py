@@ -4,11 +4,11 @@ from starlette.requests import Request
 from starlette.responses import (
     HTMLResponse, RedirectResponse, PlainTextResponse, JSONResponse
 )
-from starlette.websockets import WebSocket
 
 from starlette_login.decorator import login_required, fresh_login_required
 from starlette_login.utils import login_user, logout_user
 
+from .decorators import admin_only
 from .extension import login_manager
 from .model import user_list
 
@@ -92,6 +92,12 @@ def sync_fresh_login(request: Request):
 async def async_fresh_login(request: Request):
     result = {'cookie': request.cookies, 'session': request.session}
     return JSONResponse(result)
+
+
+@login_required
+@admin_only
+async def admin_only_page(request: Request):
+    return PlainTextResponse('You are an admin')
 
 
 def un_fresh_login(request: Request):

@@ -16,6 +16,7 @@ from .views import (
     sync_fresh_login, async_fresh_login,
     un_fresh_login, clear_session,
     excluded, get_request_data,
+    admin_only_page
 )
 
 routes = [
@@ -33,6 +34,7 @@ routes = [
     ),
     Route('/excluded', excluded, name='excluded'),
     Route('/request_data', get_request_data, name='req_data'),
+    Route('/admin_only', admin_only_page, name='admin_only_page'),
 ]
 
 
