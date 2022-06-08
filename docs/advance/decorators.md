@@ -14,8 +14,8 @@ You can add a filter alike `decorator` for this.
 ### Codes
 
 !!! warning "Codes below are incomplete"
-    Python files below are edit/update of Web Application we created on [Basic page](/).
-    Please follow the [Basic page](/) to try codes below.
+    Python files below are edit/update of Web Application we created on [Basic page](../index.md).
+    Please follow the [Basic page](../index.md) to try codes below.
 
 Edit to **model.py** from [Basic] page.
 
