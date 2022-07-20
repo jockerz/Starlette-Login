@@ -2,5 +2,4 @@ coverage
 pytest
 pytest-asyncio
 pytest-cov
-pytest-twisted
 requests
