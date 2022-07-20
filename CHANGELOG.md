@@ -3,6 +3,12 @@
 All notable changes to this project will be documented in this file.
 
 
+## 0.1.3
+
+### Added
+
+ - Add tutorial on documentation on integrating with SQLAdmin
+
 ## 0.1.1
 
 ### Fixed
