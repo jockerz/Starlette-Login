@@ -3,7 +3,7 @@
   <a href="https://codecov.io/gh/jockerz/Starlette-Login" target="_blank">
     <img src="https://img.shields.io/codecov/c/github/jockerz/Starlette-Login?color=%2334D058" alt="Coverage">
   </a>
-  <a href="https://github.com/encode/starlette/actions">
+  <a href="https://github.com/jockerz/Starlette-Login/actions">
     <img src='https://github.com/jockerz/Starlette-Login/actions/workflows/python-package.yml/badge.svg' alt='Test Status' />
   </a>
   <a href="https://pypi.org/project/Starlette-Login">

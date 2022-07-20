@@ -34,4 +34,6 @@ nav:
     - Configuration: custom/configuration.md
   - Advance Usage:
     - Custom Decorator: advance/decorators.md
+  - Tutorial:
+    - SQLAdmin: tutorial/sqladmin.md
   - Contribution: contribution.md

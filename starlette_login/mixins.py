@@ -6,8 +6,16 @@ class UserMixin(BaseUser):
     def is_authenticated(self) -> bool:
         return True
 
+    @property
+    def display_name(self) -> str:
+        raise NotImplementedError()  # pragma: no cover
 
-class AnonymousUser(UserMixin):
+    @property
+    def identity(self) -> str:
+        raise NotImplementedError()  # pragma: no cover
+
+
+class AnonymousUser(BaseUser):
     @property
     def is_authenticated(self) -> bool:
         return False

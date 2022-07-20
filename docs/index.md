@@ -47,11 +47,11 @@ import typing
 from dataclasses import dataclass
 
 from starlette.requests import Request
-from starlette_login.mixins import BaseUser
+from starlette_login.mixins import UserMixin
 
 
 @dataclass
-class User(BaseUser):
+class User(UserMixin):
     identifier: int
     username: str
     password: str = 'password'
