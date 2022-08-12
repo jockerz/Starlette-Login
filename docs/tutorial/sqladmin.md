@@ -260,7 +260,7 @@ from starlette_login.middleware import AuthenticationMiddleware
 # Admin application instance, model and our previous `view`/`routes`.
 from admin import UserAdmin
 from model import Base, User
-from view import register_page, login_page, logout_page, home_page
+from view import login_page, logout_page, home_page
 ```
 
 Prepare `Database` (engine and session) and `LoginManager` instance 

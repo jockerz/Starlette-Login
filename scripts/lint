@@ -1,0 +1,14 @@
+#!/bin/sh -e
+
+if [ -d 'venv' ] ; then
+    PREFIX="venv/bin/"
+else
+    PREFIX=""
+fi
+SOURCE_FILES="starlette_login tests"
+
+set -x
+
+${PREFIX}autoflake --in-place --recursive ${SOURCE_FILES}
+${PREFIX}isort --project=starlette_login ${SOURCE_FILES}
+${PREFIX}black --line-length=79 ${SOURCE_FILES}

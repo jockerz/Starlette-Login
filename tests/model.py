@@ -2,6 +2,7 @@ import typing
 from dataclasses import dataclass
 
 from starlette.requests import Request
+
 from starlette_login.mixins import BaseUser
 
 
@@ -9,7 +10,7 @@ from starlette_login.mixins import BaseUser
 class User(BaseUser):
     id: int
     username: str
-    password: str = 'password'
+    password: str = "password"
     is_admin: bool = False
 
     def check_password(self, password: str):
@@ -64,8 +65,6 @@ class UserList:
 
 
 user_list = UserList()
-user_list.add(User(id=1, username='user1', password='password'))
-user_list.add(User(id=2, username='user2', password='password'))
-user_list.add(
-    User(id=3, username='admin', password='password', is_admin=True)
-)
+user_list.add(User(id=1, username="user1", password="password"))
+user_list.add(User(id=2, username="user2", password="password"))
+user_list.add(User(id=3, username="admin", password="password", is_admin=True))

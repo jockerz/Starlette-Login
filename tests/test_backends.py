@@ -9,26 +9,30 @@ class TestSessionAuthBackend:
     async def test_async_user_loader(self, test_client):
         login_manager.set_user_loader(user_list.async_user_loader)
 
-        resp = test_client.post('/login', data={
-            'username': 'user1', 'password': 'password'
-        })
+        resp = test_client.post(
+            "/login", data={"username": "user1", "password": "password"}
+        )
 
         assert resp.status_code == 302
-        assert resp.headers['location'] == '/'
+        assert resp.headers["location"] == "/"
 
     async def test_use_cookies(self, test_client):
-        test_client.post('/login', data={
-            'username': 'user1', 'password': 'password',
-            'remember': True
-        })
+        test_client.post(
+            "/login",
+            data={
+                "username": "user1",
+                "password": "password",
+                "remember": True,
+            },
+        )
 
         # clean authentication session
-        resp = test_client.get('/request_data')
-        resp = test_client.get('/clear')
+        resp = test_client.get("/request_data")
+        resp = test_client.get("/clear")
         assert resp.status_code == 200
 
         # just after login access
-        resp = test_client.get('/request_data')
+        resp = test_client.get("/request_data")
 
         assert resp.status_code == 200
-        assert 'login' not in resp.url
+        assert "login" not in resp.url

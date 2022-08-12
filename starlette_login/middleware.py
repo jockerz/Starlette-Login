@@ -1,7 +1,8 @@
 import typing as t
 
 from starlette.middleware.base import (
-    BaseHTTPMiddleware, RequestResponseEndpoint
+    BaseHTTPMiddleware,
+    RequestResponseEndpoint,
 )
 from starlette.requests import Request
 from starlette.responses import Response
@@ -19,7 +20,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         login_manager: LoginManager,
         secret_key: str,
         login_route: str = None,
-        excluded_dirs: t.List[str] = None
+        excluded_dirs: t.List[str] = None,
     ):
         super().__init__(app)
         self.app = app
@@ -35,15 +36,15 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         scope = request.scope
         # Excluded prefix path. E.g. /static
         for prefix_dir in self.excluded_dirs:
-            if scope['path'].startswith(prefix_dir):
+            if scope["path"].startswith(prefix_dir):
                 response = await call_next(request)
                 return response
 
         user = await self.backend.authenticate(request)
         if not user or user.is_authenticated is False:
-            request.scope['user'] = self.login_manager.anonymous_user_cls()
+            request.scope["user"] = self.login_manager.anonymous_user_cls()
         else:
-            request.scope['user'] = user
+            request.scope["user"] = user
 
         response = await call_next(request)
 
@@ -51,7 +52,7 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
             operation = request.session.get(
                 self.login_manager.config.REMEMBER_COOKIE_NAME
             )
-            if operation == 'set':
+            if operation == "set":
                 self.login_manager.set_cookie(response, user.identity)
 
         return response

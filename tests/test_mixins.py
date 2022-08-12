@@ -1,4 +1,4 @@
-from starlette_login.mixins import UserMixin, AnonymousUser
+from starlette_login.mixins import AnonymousUser, UserMixin
 
 
 class TestUserMixinTest:
@@ -6,7 +6,7 @@ class TestUserMixinTest:
         anon = AnonymousUser()
 
         assert anon.is_authenticated is False
-        assert anon.display_name == ''
+        assert anon.display_name == ""
         assert anon.identity is None
 
     def test_user(self):

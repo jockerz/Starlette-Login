@@ -1,5 +1,4 @@
 import pytest
-
 from starlette.requests import Request
 from starlette.responses import JSONResponse
 from starlette.testclient import TestClient
@@ -19,19 +18,19 @@ class TestAuthenticationMiddleware:
 
         http = TestClient(new_app)
         with pytest.raises(AssertionError):
-            http.get('/')
+            http.get("/")
 
     async def test_excluded(self, test_client):
-        resp = test_client.get('/excluded')
+        resp = test_client.get("/excluded")
 
-        assert resp.json()['user'] is None
+        assert resp.json()["user"] is None
         assert resp.status_code == 200
         assert resp.cookies.items() == []
 
     async def test_excluded_logged_in(self, test_client):
-        test_client.post('/login', data={
-            'username': 'user1', 'password': 'password'
-        })
-        resp = test_client.get('/excluded')
+        test_client.post(
+            "/login", data={"username": "user1", "password": "password"}
+        )
+        resp = test_client.get("/excluded")
 
-        assert resp.json()['user'] is None
+        assert resp.json()["user"] is None

@@ -3,7 +3,7 @@ import typing as t
 
 from starlette.requests import HTTPConnection
 
-from .login_manager import LoginManager, ProtectionLevel
+from .login_manager import LoginManager
 from .mixins import UserMixin
 
 
@@ -11,7 +11,7 @@ class BaseAuthenticationBackend:
     # name: str = None
 
     async def authenticate(self, request: HTTPConnection):
-        ...     # pragma: no cover
+        ...  # pragma: no cover
 
 
 class SessionAuthBackend(BaseAuthenticationBackend):
@@ -34,18 +34,20 @@ class SessionAuthBackend(BaseAuthenticationBackend):
                     pass
             request.session[
                 self.login_manager.config.REMEMBER_COOKIE_NAME
-            ] = 'clear'
+            ] = "clear"
         else:
             request.session[
                 self.login_manager.config.SESSION_NAME_FRESH
             ] = False
 
-        if user_id is None and request.session.get(
-            self.login_manager.config.REMEMBER_COOKIE_NAME, 'clear'
-        ) != 'clear':
-            cookie = request.cookies.get(
-                self.login_manager.config.COOKIE_NAME
+        if (
+            user_id is None
+            and request.session.get(
+                self.login_manager.config.REMEMBER_COOKIE_NAME, "clear"
             )
+            != "clear"
+        ):
+            cookie = request.cookies.get(self.login_manager.config.COOKIE_NAME)
             if cookie:
                 user_id = self.login_manager.get_cookie(cookie)
                 user_id = int(user_id)
@@ -54,11 +56,9 @@ class SessionAuthBackend(BaseAuthenticationBackend):
                 ] = False
 
         if user_id is None:
-            return
+            return None
         elif asyncio.iscoroutinefunction(self.login_manager.user_loader):
             user = await self.login_manager.user_loader(request, user_id)
         else:
             user = self.login_manager.user_loader(request, user_id)
-
-        if user is not None:
-            return user
+        return user
