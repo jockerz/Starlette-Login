@@ -80,42 +80,21 @@ def login_required(func: typing.Callable) -> typing.Callable:
 def ws_login_required(func: typing.Callable) -> typing.Callable:
     idx = is_route_function(func, "websocket")
 
-    if asyncio.iscoroutinefunction(func):
+    @functools.wraps(func)
+    async def async_wrapper(*args: typing.Any, **kwargs: typing.Any):
+        websocket = kwargs.get("websocket", args[idx] if args else None)
+        assert isinstance(websocket, WebSocket)
 
-        @functools.wraps(func)
-        async def async_wrapper(
-            *args: typing.Any, **kwargs: typing.Any
-        ) -> Response:
-            websocket = kwargs.get("websocket", args[idx] if args else None)
-            assert isinstance(websocket, WebSocket)
+        login_manager = getattr(websocket.app.state, "login_manager", None)
+        assert login_manager is not None, LOGIN_MANAGER_ERROR
 
-            login_manager = getattr(websocket.app.state, "login_manager", None)
-            assert login_manager is not None, LOGIN_MANAGER_ERROR
+        user = websocket.scope.get("user")
+        if not user or getattr(user, "is_authenticated", False) is False:
+            await login_manager.ws_not_authenticated(websocket)
+        else:
+            return await func(*args, **kwargs)
 
-            user = websocket.scope.get("user")
-            if not user or getattr(user, "is_authenticated", False) is False:
-                raise Exception
-            else:
-                return await func(*args, **kwargs)
-
-        return async_wrapper
-    else:
-
-        @functools.wraps(func)
-        def sync_wrapper(*args: typing.Any, **kwargs: typing.Any) -> Response:
-            websocket = kwargs.get("websocket", args[idx] if args else None)
-            assert isinstance(websocket, WebSocket)
-
-            login_manager = getattr(websocket.app.state, "login_manager", None)
-            assert login_manager is not None, LOGIN_MANAGER_ERROR
-
-            user = websocket.scope.get("user")
-            if not user or getattr(user, "is_authenticated", False) is False:
-                raise Exception
-            else:
-                return func(*args, **kwargs)
-
-        return sync_wrapper
+    return async_wrapper
 
 
 def fresh_login_required(func: typing.Callable) -> typing.Callable:
@@ -198,58 +177,27 @@ def fresh_login_required(func: typing.Callable) -> typing.Callable:
 def ws_fresh_login_required(func: typing.Callable) -> typing.Callable:
     idx = is_route_function(func, "websocket")
 
-    if asyncio.iscoroutinefunction(func):
+    @functools.wraps(func)
+    async def async_wrapper(*args: typing.Any, **kwargs: typing.Any):
+        websocket = kwargs.get("websocket", args[idx] if args else None)
+        assert isinstance(websocket, WebSocket)
 
-        @functools.wraps(func)
-        async def async_wrapper(
-            *args: typing.Any, **kwargs: typing.Any
-        ) -> Response:
-            websocket = kwargs.get("websocket", args[idx] if args else None)
-            assert isinstance(websocket, WebSocket)
+        login_manager = getattr(websocket.app.state, "login_manager", None)
+        assert login_manager is not None, LOGIN_MANAGER_ERROR
 
-            login_manager = getattr(websocket.app.state, "login_manager", None)
-            assert login_manager is not None, LOGIN_MANAGER_ERROR
+        session_fresh = login_manager.config.SESSION_NAME_FRESH
 
-            session_fresh = login_manager.config.SESSION_NAME_FRESH
+        user = websocket.scope.get("user")
+        if (
+            not user
+            or getattr(user, "is_authenticated", False) is False
+            or websocket.session.get(session_fresh, False) is False
+        ):
+            websocket.session[
+                login_manager.config.SESSION_NAME_ID
+            ] = create_identifier(websocket)
+            await login_manager.ws_not_authenticated(websocket)
+        else:
+            return await func(*args, **kwargs)
 
-            user = websocket.scope.get("user")
-            if (
-                not user
-                or getattr(user, "is_authenticated", False) is False
-                or websocket.session.get(session_fresh, False) is False
-            ):
-                websocket.session[
-                    login_manager.config.SESSION_NAME_ID
-                ] = create_identifier(websocket)
-                raise Exception
-            else:
-                return await func(*args, **kwargs)
-
-        return async_wrapper
-    else:
-
-        @functools.wraps(func)
-        def sync_wrapper(*args: typing.Any, **kwargs: typing.Any) -> Response:
-            websocket = kwargs.get("websocket", args[idx] if args else None)
-            assert isinstance(websocket, WebSocket)
-
-            login_manager = getattr(websocket.app.state, "login_manager", None)
-            assert login_manager is not None, LOGIN_MANAGER_ERROR
-
-            session_fresh = login_manager.config.SESSION_NAME_FRESH
-
-            user = websocket.scope.get("user")
-            if (
-                not user
-                or getattr(user, "is_authenticated", False) is False
-                or websocket.session.get(session_fresh, False) is False
-            ):
-                websocket.session[
-                    login_manager.config.SESSION_NAME_ID
-                ] = create_identifier(websocket)
-
-                raise Exception
-            else:
-                return func(*args, **kwargs)
-
-        return sync_wrapper
+    return async_wrapper

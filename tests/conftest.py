@@ -40,7 +40,7 @@ routes = [
 ]
 
 
-@pytest.mark.asynctio
+@pytest.mark.asyncio
 @pytest.fixture
 async def app():
     middlewares = [
@@ -64,7 +64,7 @@ def test_client(app):
     return TestClient(app)
 
 
-@pytest.mark.asynctio
+@pytest.mark.asyncio
 @pytest.fixture
 async def secure_app():
     middlewares = [

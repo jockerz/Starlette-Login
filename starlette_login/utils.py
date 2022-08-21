@@ -68,7 +68,9 @@ async def logout_user(request: Request) -> None:
     request.scope["user"] = AnonymousUser()
 
 
-def encode_cookie(payload: str, key: str) -> str:
+def encode_cookie(payload: typing.Any, key: str) -> str:
+    if not isinstance(payload, str):
+        payload = str(payload)
     return f"{payload}|{_cookie_digest(payload, key=key)}"
 
 

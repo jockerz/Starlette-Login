@@ -5,9 +5,12 @@ from enum import Enum
 
 from starlette.requests import HTTPConnection
 from starlette.responses import Response
+from starlette.websockets import WebSocket
 
 from .mixins import AnonymousUser, UserMixin
 from .utils import decode_cookie, encode_cookie
+
+WebsocketAuthFailCallback = t.Callable[[WebSocket], t.Awaitable[None]]
 
 
 class ProtectionLevel(Enum):
@@ -53,15 +56,29 @@ class LoginManager:
     def __init__(
         self, redirect_to: str, secret_key: str, config: Config = None
     ):
-        self._user_loader: t.Optional[t.Callable[..., UserMixin]] = None
         self.config = config or Config()
         self.anonymous_user_cls = AnonymousUser
         # Name of redirect view when user need to log in.
         self.redirect_to = redirect_to
         self.secret_key = secret_key
 
+        self._user_loader: t.Optional[t.Callable[..., UserMixin]] = None
+        # Custom not authenticated callback for websocket
+        self._ws_auth_fail_func: t.Optional[WebsocketAuthFailCallback] = None
+
     def set_user_loader(self, callback: t.Callable[..., UserMixin]):
+        """Set custom user loader"""
         self._user_loader = callback
+
+    def set_ws_not_authenticated(self, callback: WebsocketAuthFailCallback):
+        """Set not authenticated callback for websocket"""
+        self._ws_auth_fail_func = callback
+
+    async def ws_not_authenticated(self, websocket: WebSocket):
+        if self._ws_auth_fail_func is None:
+            await websocket.close()
+        else:
+            await self._ws_auth_fail_func(websocket)
 
     @property
     def user_loader(self):
