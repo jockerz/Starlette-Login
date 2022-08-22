@@ -39,7 +39,8 @@ class Config:
     COOKIE_PATH: str = "/"
     COOKIE_SECURE: bool = False
     COOKIE_HTTPONLY: bool = True
-    COOKIE_SAMESITE: t.Optional[t.Literal["lax", "strict", "none"]] = None
+    # COOKIE_SAMESITE: t.Optional[t.Literal["lax", "strict", "none"]] = None
+    COOKIE_SAMESITE: t.Optional[str] = None
     COOKIE_DURATION: timedelta = timedelta(days=365)
 
     @property
