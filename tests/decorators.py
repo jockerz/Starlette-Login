@@ -1,19 +1,44 @@
 import asyncio
 import functools
+import inspect
 import typing
 
 from starlette.exceptions import HTTPException
 from starlette.requests import Request
 from starlette.responses import Response
-
-# Validate that the function received a Request instance argument
-from starlette_login.decorator import is_route_function
+from starlette.websockets import WebSocket
 
 
 def admin_only(func: typing.Callable) -> typing.Callable:
-    idx = is_route_function(func, "request")
+    sig = inspect.signature(func)
+    for idx, parameter in enumerate(sig.parameters.values()):
+        if parameter.name == "request" or parameter.name == "websocket":
+            type_ = parameter.name
+            break
+    else:
+        raise Exception(
+            f'No "request" or "websocket" argument on function "{func}"'
+        )
 
-    if asyncio.iscoroutinefunction(func):
+    if type_ == "websocket":
+        @functools.wraps(func)
+        async def websocket_wrapper(
+            *args: typing.Any, **kwargs: typing.Any
+        ) -> None:
+            websocket = kwargs.get(
+                "websocket", args[idx] if idx < len(args) else None
+            )
+            assert isinstance(websocket, WebSocket)
+
+            user = websocket.scope.get("user")
+            if user and user.is_admin is not True:
+                await websocket.close()
+            else:
+                await func(*args, **kwargs)
+
+        return websocket_wrapper
+
+    elif asyncio.iscoroutinefunction(func):
 
         @functools.wraps(func)
         async def async_wrapper(
@@ -29,6 +54,7 @@ def admin_only(func: typing.Callable) -> typing.Callable:
                 return await func(*args, **kwargs)
 
         return async_wrapper
+
     else:
 
         @functools.wraps(func)

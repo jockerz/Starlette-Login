@@ -2,7 +2,7 @@ import pytest
 from starlette.applications import Starlette
 from starlette.middleware import Middleware
 from starlette.middleware.sessions import SessionMiddleware
-from starlette.routing import Route
+from starlette.routing import Route, WebSocketRoute
 from starlette.testclient import TestClient
 
 from starlette_login.backends import SessionAuthBackend
@@ -22,6 +22,8 @@ from .views import (
     sync_fresh_login,
     sync_protected_page,
     un_fresh_login,
+    ws_endpoint,
+    ws_endpoint_admin,
 )
 
 routes = [
@@ -37,6 +39,8 @@ routes = [
     Route("/excluded", excluded, name="excluded"),
     Route("/request_data", get_request_data, name="req_data"),
     Route("/admin_only", admin_only_page, name="admin_only_page"),
+    WebSocketRoute("/ws", ws_endpoint, name="ws_endpoint"),
+    WebSocketRoute("/ws_admin", ws_endpoint_admin, name="ws_endpoint_admin"),
 ]
 
 

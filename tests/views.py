@@ -7,8 +7,13 @@ from starlette.responses import (
     PlainTextResponse,
     RedirectResponse,
 )
+from starlette.websockets import WebSocket
 
-from starlette_login.decorator import fresh_login_required, login_required
+from starlette_login.decorator import (
+    fresh_login_required,
+    login_required,
+    ws_login_required,
+)
 from starlette_login.utils import login_user, logout_user
 
 from .decorators import admin_only
@@ -129,3 +134,18 @@ async def excluded(request: Request):
         user = None
 
     return JSONResponse({"user": getattr(user, "username", None)})
+
+
+@ws_login_required
+async def ws_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    await websocket.send_text("authenticated")
+    await websocket.close()
+
+
+@ws_login_required
+@admin_only
+async def ws_endpoint_admin(websocket: WebSocket):
+    await websocket.accept()
+    await websocket.send_text("authenticated - admin")
+    await websocket.close()

@@ -1,10 +1,12 @@
+import http.cookies
 import typing as t
 from dataclasses import dataclass
 from datetime import timedelta
 from enum import Enum
 
+from starlette.datastructures import MutableHeaders
 from starlette.requests import HTTPConnection
-from starlette.responses import Response
+from starlette.types import Message
 from starlette.websockets import WebSocket
 
 from .mixins import AnonymousUser, UserMixin
@@ -93,17 +95,41 @@ class LoginManager:
     def protection_is_strong(self):
         return self.config.protection_level == ProtectionLevel.Strong
 
-    def set_cookie(self, response: Response, user_id: t.Any):
-        response.set_cookie(
-            key=self.config.COOKIE_NAME,
-            value=encode_cookie(user_id, self.secret_key),
-            expires=int(self.config.COOKIE_DURATION.total_seconds()),
-            path=self.config.COOKIE_PATH,
-            domain=self.config.COOKIE_DOMAIN,
-            secure=self.config.COOKIE_SECURE,
-            httponly=self.config.COOKIE_HTTPONLY,
-            samesite=self.config.COOKIE_SAMESITE,
-        )
+    def set_cookie(self, message: Message, user_id: t.Any) -> Message:
+        key = self.config.COOKIE_NAME
+        value = encode_cookie(user_id, self.secret_key)
+        expires = int(self.config.COOKIE_DURATION.total_seconds())
+        path = self.config.COOKIE_PATH
+        domain = self.config.COOKIE_DOMAIN
+        secure = self.config.COOKIE_SECURE
+        httponly = self.config.COOKIE_HTTPONLY
+        samesite = self.config.COOKIE_SAMESITE
+
+        message.setdefault("headers", [])
+        headers = MutableHeaders(scope=message)
+        cookie: "http.cookies.BaseCookie[str]" = http.cookies.SimpleCookie()
+
+        cookie[key] = value
+        if expires is not None:
+            cookie[key]["expires"] = expires
+        if path is not None:
+            cookie[key]["path"] = path
+        if domain is not None:
+            cookie[key]["domain"] = domain
+        if secure:
+            cookie[key]["secure"] = True
+        if httponly:
+            cookie[key]["httponly"] = True
+        if samesite is not None:
+            assert samesite.lower() in [
+                "strict",
+                "lax",
+                "none",
+            ], "samesite must be either 'strict', 'lax' or 'none'"
+            cookie[key]["samesite"] = samesite
+
+        headers['set-cookie'] = cookie.output(header="").strip()
+        return message
 
     def get_cookie(self, cookie: str):
         return decode_cookie(cookie, self.secret_key)

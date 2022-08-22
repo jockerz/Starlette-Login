@@ -1,18 +1,13 @@
 import typing as t
 
-from starlette.middleware.base import (
-    BaseHTTPMiddleware,
-    RequestResponseEndpoint,
-)
-from starlette.requests import Request
-from starlette.responses import Response
-from starlette.types import ASGIApp
+from starlette.requests import HTTPConnection
+from starlette.types import ASGIApp, Receive, Scope, Send
 
 from .backends import BaseAuthenticationBackend
 from .login_manager import LoginManager
 
 
-class AuthenticationMiddleware(BaseHTTPMiddleware):
+class AuthenticationMiddleware:
     def __init__(
         self,
         app: ASGIApp,
@@ -22,7 +17,6 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         login_route: str = None,
         excluded_dirs: t.List[str] = None,
     ):
-        super().__init__(app)
         self.app = app
         self.backend = backend
         self.login_route = login_route
@@ -30,29 +24,36 @@ class AuthenticationMiddleware(BaseHTTPMiddleware):
         self.login_manager = login_manager
         self.excluded_dirs = excluded_dirs or []
 
-    async def dispatch(
-        self, request: Request, call_next: RequestResponseEndpoint
-    ) -> Response:
-        scope = request.scope
+    async def __call__(
+        self, scope: Scope, receive: Receive, send: Send
+    ) -> None:
+        if scope["type"] not in ("http", "websocket"):
+            await self.app(scope, receive, send)
+            return
+
         # Excluded prefix path. E.g. /static
         for prefix_dir in self.excluded_dirs:
             if scope["path"].startswith(prefix_dir):
-                response = await call_next(request)
-                return response
+                await self.app(scope, receive, send)
+                return
 
-        user = await self.backend.authenticate(request)
+        conn = HTTPConnection(scope=scope, receive=receive)
+        user = await self.backend.authenticate(conn)
         if not user or user.is_authenticated is False:
-            request.scope["user"] = self.login_manager.anonymous_user_cls()
+            conn.scope["user"] = self.login_manager.anonymous_user_cls()
         else:
-            request.scope["user"] = user
+            conn.scope["user"] = user
 
-        response = await call_next(request)
+        async def custom_send(message):
+            if user and user.is_authenticated:
+                operation = conn.session.get(
+                    self.login_manager.config.REMEMBER_COOKIE_NAME
+                )
+                if operation == "set":
+                    message = self.login_manager.set_cookie(
+                        message=message, user_id=user.identity
+                    )
+            await send(message)
 
-        if user and user.is_authenticated:
-            operation = request.session.get(
-                self.login_manager.config.REMEMBER_COOKIE_NAME
-            )
-            if operation == "set":
-                self.login_manager.set_cookie(response, user.identity)
-
-        return response
+        await self.app(scope, receive, custom_send)
+        return
