@@ -291,9 +291,8 @@ middleware = [
         AuthenticationMiddleware,
         backend=SessionAuthBackend(login_manager),
         login_manager=login_manager,
-        secret_key=SECRET_KEY,
         excluded_dirs=['/static']
-    )
+    ),
 )
 ```
 

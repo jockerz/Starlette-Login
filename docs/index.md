@@ -29,12 +29,6 @@ Development
 pip install 'git+https://github.com/jockerz/Starlette-Login'
 ```
 
-## Usage Examples
-
- - [Basic Auth](https://github.com/jockerz/Starlette-Login-Example/tree/main/basic_auth)
- - Token Auth: *TODO*
- - Multiple Auth: *TODO*
-
 
 ## Usage
 
@@ -199,7 +193,7 @@ from .model import user_list
 from .routes import home_page, login_page, logout_page, protected_page
 
 
-login_manager = LoginManager(redirect_to='login')
+login_manager = LoginManager(redirect_to='login', secret_key='secret')
 login_manager.set_user_loader(user_list.user_loader)
 
 app = Starlette(
@@ -210,7 +204,6 @@ app = Starlette(
             backend=SessionAuthBackend(login_manager),
             login_manager=login_manager,
             login_route='login',
-            secret_key='secret',
         )
     ],
 
@@ -229,5 +222,12 @@ app.state.login_manager = login_manager
 ```shell
 uvicorn app:app
 ```
+
+## More Examples
+
+ - [Basic Auth](https://github.com/jockerz/Starlette-Login-Example/tree/main/basic_auth)
+ - Token Auth: *TODO*
+ - Multiple Auth: *TODO*
+
 
 [Flask-Login]: https://flask-login.readthedocs.io

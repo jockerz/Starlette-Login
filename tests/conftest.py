@@ -54,7 +54,6 @@ async def app():
             backend=SessionAuthBackend(login_manager),
             login_manager=login_manager,
             login_route="login",
-            secret_key="secret",
             excluded_dirs=["/excluded"],
         ),
     ]
@@ -78,7 +77,6 @@ async def secure_app():
             backend=SessionAuthBackend(x_login_manager),
             login_manager=x_login_manager,
             login_route="login",
-            secret_key="secret",
             excluded_dirs=["/excluded"],
         ),
     ]

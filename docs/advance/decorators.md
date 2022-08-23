@@ -58,7 +58,8 @@ from .model import User
 
 
 def admin_only(func: typing.Callable) -> typing.Callable:
-    idx = is_route_function(func)
+    # HTTP only
+    idx = is_route_function(func, "request")
 
     if asyncio.iscoroutinefunction(func):
         @functools.wraps(func)

@@ -5,6 +5,7 @@ from starlette.requests import HTTPConnection
 
 from .login_manager import LoginManager
 from .mixins import UserMixin
+from .utils import create_identifier
 
 
 class BaseAuthenticationBackend:
@@ -22,28 +23,28 @@ class SessionAuthBackend(BaseAuthenticationBackend):
         self, conn: HTTPConnection
     ) -> t.Optional[UserMixin]:
         # Load user from session
-        session_key = self.login_manager.config.SESSION_NAME_KEY
-        user_id = conn.session.get(session_key)
+        config = self.login_manager.config
+        remember_cookie = config.REMEMBER_COOKIE_NAME
+        session_fresh = config.SESSION_NAME_FRESH
 
-        remember_cookie = self.login_manager.config.REMEMBER_COOKIE_NAME
-        session_fresh = self.login_manager.config.SESSION_NAME_FRESH
+        session = conn.session.get(config.SESSION_NAME_ID)
+        identifier = create_identifier(conn)
 
-        # Using Strong protection
-        if self.login_manager.protection_is_strong():
-            for key in self.login_manager.config.session_keys:
-                try:
-                    conn.session.pop(key)
-                except KeyError:
-                    pass
-            conn.session[remember_cookie] = "clear"
-        else:
+        if identifier != session:
+            if self.login_manager.protection_is_strong():
+                # Strong protection
+                for key in config.session_keys:
+                    conn.session.pop(key, None)
+                # conn.session[remember_cookie] = "clear"
+            # else:
             conn.session[session_fresh] = False
+        user_id = conn.session.get(config.SESSION_NAME_KEY)
 
         if (
             user_id is None
-            and conn.session.get(remember_cookie, "clear") != "clear"
+            and conn.session.get(remember_cookie) != "clear"
         ):
-            cookie = conn.cookies.get(self.login_manager.config.COOKIE_NAME)
+            cookie = conn.cookies.get(config.COOKIE_NAME)
             if cookie:
                 user_id = self.login_manager.get_cookie(cookie)
                 user_id = int(user_id)

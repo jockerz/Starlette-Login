@@ -17,7 +17,7 @@ async def login_user(
     remember: bool = False,
     duration: timedelta = None,
     fresh: bool = True,
-) -> bool:
+) -> None:
     assert request.scope.get("app") is not None, "Invalid Starlette app"
     login_manager = getattr(request.app.state, "login_manager", None)
     assert login_manager is not None, LOGIN_MANAGER_ERROR
@@ -25,19 +25,19 @@ async def login_user(
         user.identity is not None
     ), "user identity implementation is required"
 
-    request.session[login_manager.config.SESSION_NAME_KEY] = user.identity
-    request.session[login_manager.config.SESSION_NAME_FRESH] = fresh
-    request.session[login_manager.config.SESSION_NAME_ID] = create_identifier(
-        request
-    )
+    config = login_manager.config
+
+    request.session[config.SESSION_NAME_KEY] = user.identity
+    request.session[config.SESSION_NAME_FRESH] = fresh
+    request.session[config.SESSION_NAME_ID] = create_identifier(request)
     if remember:
-        request.session[login_manager.config.REMEMBER_COOKIE_NAME] = "set"
+        request.session[config.REMEMBER_COOKIE_NAME] = "set"
         if duration is not None:
             request.session[
-                login_manager.config.REMEMBER_SECONDS_NAME
+                config.REMEMBER_SECONDS_NAME
             ] = duration.total_seconds()
+
     request.scope["user"] = user
-    return True
 
 
 async def logout_user(request: Request) -> None:
@@ -45,10 +45,12 @@ async def logout_user(request: Request) -> None:
     login_manager = getattr(request.app.state, "login_manager", None)
     assert login_manager is not None, LOGIN_MANAGER_ERROR
 
-    session_key = login_manager.config.SESSION_NAME_KEY
-    session_fresh = login_manager.config.SESSION_NAME_FRESH
-    session_id = login_manager.config.SESSION_NAME_ID
-    remember_cookie = login_manager.config.REMEMBER_COOKIE_NAME
+    config = login_manager.config
+    session_key = config.SESSION_NAME_KEY
+    session_fresh = config.SESSION_NAME_FRESH
+    session_id = config.SESSION_NAME_ID
+    remember_cookie = config.REMEMBER_COOKIE_NAME
+    remember_seconds = config.REMEMBER_SECONDS_NAME
 
     if session_key in request.session:
         request.session.pop(session_key)
@@ -61,7 +63,6 @@ async def logout_user(request: Request) -> None:
 
     if remember_cookie in request.cookies:
         request.session[remember_cookie] = "clear"
-        remember_seconds = login_manager.config.REMEMBER_SECONDS_NAME
         if remember_seconds in request.session:
             request.session.pop(remember_seconds)
 

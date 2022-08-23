@@ -26,7 +26,6 @@ class Config:
     SESSION_NAME_ID: str = "_id"
     SESSION_NAME_KEY: str = "_user_id"
     SESSION_NAME_NEXT: str = "next"
-
     REMEMBER_COOKIE_NAME: str = "_remember"
     REMEMBER_SECONDS_NAME: str = "_remember_seconds"
     EXEMPT_METHODS: t.Tuple[str] = ("OPTIONS",)
@@ -39,6 +38,7 @@ class Config:
     COOKIE_PATH: str = "/"
     COOKIE_SECURE: bool = False
     COOKIE_HTTPONLY: bool = True
+    # Not supported on python 3.6 and 3.7
     # COOKIE_SAMESITE: t.Optional[t.Literal["lax", "strict", "none"]] = None
     COOKIE_SAMESITE: t.Optional[str] = None
     COOKIE_DURATION: timedelta = timedelta(days=365)

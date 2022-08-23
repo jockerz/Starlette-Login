@@ -56,7 +56,40 @@ class TestLogin:
         assert resp.status_code == 200
         assert data["session"]["_remember"] == "set"
 
-    async def test_remember_me_strong_protection(self, secure_test_client):
+
+@pytest.mark.asyncio
+class TestStrongProtection:
+    async def test_regular(self, secure_test_client):
+        _ = secure_test_client.post(
+            "/login",
+            data={
+                "username": "user1",
+                "password": "password",
+            },
+        )
+
+        resp = secure_test_client.get("/request_data")
+        assert resp.status_code == 200
+        assert resp.json()
+
+    async def test_identifier_changed(self, secure_test_client):
+        _ = secure_test_client.post(
+            "/login",
+            data={
+                "username": "user1",
+                "password": "password",
+            },
+        )
+
+        secure_test_client.headers['user-agent'] = 'changed'
+        resp = secure_test_client.get("/request_data")
+
+        assert '<button type="submit">Login</button>' in resp.text
+
+
+@pytest.mark.asyncio
+class TestStrongProtectionRememberMe:
+    async def test_regular(self, secure_test_client):
         _ = secure_test_client.post(
             "/login",
             data={
@@ -68,5 +101,26 @@ class TestLogin:
 
         resp = secure_test_client.get("/request_data")
         data = resp.json()
+
         assert resp.status_code == 200
-        assert data["session"]["_remember"] == "clear"
+        assert data["session"]["_remember"] != "clear"
+
+    async def test_identifier_changed(self, secure_test_client):
+        resp = secure_test_client.post(
+            "/login",
+            data={
+                "username": "user1",
+                "password": "password",
+                "remember": True,
+            },
+        )
+
+        secure_test_client.headers['user-agent'] = 'changed'
+
+        resp = secure_test_client.get("/request_data")
+        assert resp.status_code == 200
+        assert '<button type="submit">Login</button>' not in resp.text
+
+        resp = secure_test_client.get("/request_data")
+        assert resp.status_code == 200
+        assert '<button type="submit">Login</button>' not in resp.text

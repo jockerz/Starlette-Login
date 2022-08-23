@@ -29,6 +29,7 @@ edit_uri: ""
 
 nav:
   - Basic: index.md
+  - Usage: usage.md
   - Customization:
     - Login Manager: custom/login-manager.md
     - Configuration: custom/configuration.md

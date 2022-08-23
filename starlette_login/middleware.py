@@ -1,7 +1,7 @@
 import typing as t
 
 from starlette.requests import HTTPConnection
-from starlette.types import ASGIApp, Receive, Scope, Send
+from starlette.types import ASGIApp, Receive, Scope, Send, Message
 
 from .backends import BaseAuthenticationBackend
 from .login_manager import LoginManager
@@ -13,16 +13,15 @@ class AuthenticationMiddleware:
         app: ASGIApp,
         backend: BaseAuthenticationBackend,
         login_manager: LoginManager,
-        secret_key: str,
         login_route: str = None,
         excluded_dirs: t.List[str] = None,
     ):
         self.app = app
         self.backend = backend
-        self.login_route = login_route
-        self.secret_key = secret_key
-        self.login_manager = login_manager
         self.excluded_dirs = excluded_dirs or []
+        self.login_manager = login_manager
+        self.login_route = login_route
+        self.secret_key = login_manager.secret_key
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
@@ -38,13 +37,15 @@ class AuthenticationMiddleware:
                 return
 
         conn = HTTPConnection(scope=scope, receive=receive)
+
         user = await self.backend.authenticate(conn)
         if not user or user.is_authenticated is False:
             conn.scope["user"] = self.login_manager.anonymous_user_cls()
         else:
             conn.scope["user"] = user
 
-        async def custom_send(message):
+        async def custom_send(message: Message):
+            user = conn.scope["user"]
             if user and user.is_authenticated:
                 operation = conn.session.get(
                     self.login_manager.config.REMEMBER_COOKIE_NAME
