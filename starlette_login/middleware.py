@@ -15,6 +15,7 @@ class AuthenticationMiddleware:
         login_manager: LoginManager,
         login_route: str = None,
         excluded_dirs: t.List[str] = None,
+        allow_websocket: bool = True
     ):
         self.app = app
         self.backend = backend
@@ -22,11 +23,15 @@ class AuthenticationMiddleware:
         self.login_manager = login_manager
         self.login_route = login_route
         self.secret_key = login_manager.secret_key
+        self.allow_websocket = allow_websocket
 
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
     ) -> None:
-        if scope["type"] not in ("http", "websocket"):
+        if self.allow_websocket is False and scope['type'] != 'http':
+            await self.app(scope, receive, send)
+            return
+        elif scope["type"] not in ("http", "websocket"):
             await self.app(scope, receive, send)
             return
 

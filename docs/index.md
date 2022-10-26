@@ -204,6 +204,7 @@ app = Starlette(
             backend=SessionAuthBackend(login_manager),
             login_manager=login_manager,
             login_route='login',
+            allow_websocket=False,
         )
     ],
 
