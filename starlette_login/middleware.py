@@ -1,7 +1,7 @@
 import typing as t
 
 from starlette.requests import HTTPConnection
-from starlette.types import ASGIApp, Receive, Scope, Send, Message
+from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
 from .backends import BaseAuthenticationBackend
 from .login_manager import LoginManager
@@ -15,7 +15,7 @@ class AuthenticationMiddleware:
         login_manager: LoginManager,
         login_route: str = None,
         excluded_dirs: t.List[str] = None,
-        allow_websocket: bool = True
+        allow_websocket: bool = True,
     ):
         self.app = app
         self.backend = backend
@@ -28,7 +28,7 @@ class AuthenticationMiddleware:
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
     ) -> None:
-        if self.allow_websocket is False and scope['type'] != 'http':
+        if self.allow_websocket is False and scope["type"] != "http":
             await self.app(scope, receive, send)
             return
         elif scope["type"] not in ("http", "websocket"):
@@ -50,15 +50,20 @@ class AuthenticationMiddleware:
             conn.scope["user"] = user
 
         async def custom_send(message: Message):
-            user = conn.scope["user"]
-            if user and user.is_authenticated:
+            user_ = conn.scope["user"]
+            if user and user_.is_authenticated:
                 operation = conn.session.get(
                     self.login_manager.config.REMEMBER_COOKIE_NAME
                 )
                 if operation == "set":
                     message = self.login_manager.set_cookie(
-                        message=message, user_id=user.identity
+                        message=message, user_id=user_.identity
                     )
+                elif operation == "clear":
+                    try:
+                        del conn.cookies[self.login_manager.config.COOKIE_NAME]
+                    except KeyError:
+                        pass
             await send(message)
 
         await self.app(scope, receive, custom_send)

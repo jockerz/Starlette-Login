@@ -1,9 +1,8 @@
 #!/bin/sh -e
 
+export PREFIX=""
 if [ -d 'venv' ] ; then
-    PREFIX="venv/bin/"
-else
-    PREFIX=""
+    export PREFIX="venv/bin/"
 fi
 SOURCE_FILES="starlette_login tests"
 

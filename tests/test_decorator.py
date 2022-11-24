@@ -1,5 +1,4 @@
 import pytest
-
 from starlette.websockets import WebSocketDisconnect
 
 
@@ -82,7 +81,7 @@ class TestAdminOnlyDecorator:
 
 @pytest.mark.asyncio
 class TestWebsocketLoginRequiredDecorator:
-    url_path = '/ws'
+    url_path = "/ws"
 
     async def test_not_logged_in(self, test_client):
         with pytest.raises(WebSocketDisconnect):
@@ -95,7 +94,7 @@ class TestWebsocketLoginRequiredDecorator:
         )
         with test_client.websocket_connect(self.url_path) as websocket:
             data = websocket.receive_text()
-            user = websocket.scope.get('user')
+            user = websocket.scope.get("user")
 
             assert data == "authenticated"
             assert user is not None

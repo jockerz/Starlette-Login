@@ -35,15 +35,12 @@ class SessionAuthBackend(BaseAuthenticationBackend):
                 # Strong protection
                 for key in config.session_keys:
                     conn.session.pop(key, None)
-                # conn.session[remember_cookie] = "clear"
-            # else:
-            conn.session[session_fresh] = False
+                conn.session[remember_cookie] = "clear"
+            else:
+                conn.session[session_fresh] = False
         user_id = conn.session.get(config.SESSION_NAME_KEY)
 
-        if (
-            user_id is None
-            and conn.session.get(remember_cookie) != "clear"
-        ):
+        if user_id is None and conn.session.get(remember_cookie) != "clear":
             cookie = conn.cookies.get(config.COOKIE_NAME)
             if cookie:
                 user_id = self.login_manager.get_cookie(cookie)

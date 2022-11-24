@@ -2,6 +2,11 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.6
+
+### Updated
+
+ - Handle session identifier changes
 
 ## 0.1.3
 

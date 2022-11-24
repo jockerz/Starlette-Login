@@ -129,7 +129,12 @@ class LoginManager:
             ], "samesite must be either 'strict', 'lax' or 'none'"
             cookie[key]["samesite"] = samesite
 
-        headers['set-cookie'] = cookie.output(header="").strip()
+        headers["set-cookie"] = cookie.output(header="").strip()
+        return message
+
+    def clear_cookie(self, message: Message) -> Message:
+        message.setdefault("headers", [])
+
         return message
 
     def get_cookie(self, cookie: str):

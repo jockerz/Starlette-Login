@@ -81,7 +81,7 @@ class TestStrongProtection:
             },
         )
 
-        secure_test_client.headers['user-agent'] = 'changed'
+        secure_test_client.headers["user-agent"] = "changed"
         resp = secure_test_client.get("/request_data")
 
         assert '<button type="submit">Login</button>' in resp.text
@@ -106,7 +106,8 @@ class TestStrongProtectionRememberMe:
         assert data["session"]["_remember"] != "clear"
 
     async def test_identifier_changed(self, secure_test_client):
-        resp = secure_test_client.post(
+        """Client's User-agent or IP data has been changed"""
+        _ = secure_test_client.post(
             "/login",
             data={
                 "username": "user1",
@@ -115,12 +116,8 @@ class TestStrongProtectionRememberMe:
             },
         )
 
-        secure_test_client.headers['user-agent'] = 'changed'
+        secure_test_client.headers["user-agent"] = "changed"
 
         resp = secure_test_client.get("/request_data")
         assert resp.status_code == 200
-        assert '<button type="submit">Login</button>' not in resp.text
-
-        resp = secure_test_client.get("/request_data")
-        assert resp.status_code == 200
-        assert '<button type="submit">Login</button>' not in resp.text
+        assert '<button type="submit">Login</button>' in resp.text

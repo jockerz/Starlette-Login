@@ -4,7 +4,7 @@ export PREFIX=""
 if [ -d 'venv' ] ; then
     export PREFIX="venv/bin/"
 fi
-export SOURCE_FILES="starlette_login tests"
+SOURCE_FILES="starlette_login tests"
 
 set -x
 

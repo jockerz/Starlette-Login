@@ -21,6 +21,7 @@ def admin_only(func: typing.Callable) -> typing.Callable:
         )
 
     if type_ == "websocket":
+
         @functools.wraps(func)
         async def websocket_wrapper(
             *args: typing.Any, **kwargs: typing.Any
