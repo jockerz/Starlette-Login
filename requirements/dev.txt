@@ -2,6 +2,7 @@ autoflake
 black
 coverage
 flake8
+httpx
 isort
 mypy
 pytest

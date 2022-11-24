@@ -10,7 +10,8 @@ class TestSessionAuthBackend:
         login_manager.set_user_loader(user_list.async_user_loader)
 
         resp = test_client.post(
-            "/login", data={"username": "user1", "password": "password"}
+            "/login", data={"username": "user1", "password": "password"},
+            follow_redirects=False
         )
 
         assert resp.status_code == 302
@@ -35,4 +36,4 @@ class TestSessionAuthBackend:
         resp = test_client.get("/request_data")
 
         assert resp.status_code == 200
-        assert "login" not in resp.url
+        assert "login" not in str(resp.url)

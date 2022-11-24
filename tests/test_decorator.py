@@ -55,7 +55,7 @@ class TestFreshLoginRequiredDecorator:
         test_client.get("/un_fresh")
 
         resp = test_client.get(path)
-        assert f"/login?next={path}" in resp.url
+        assert f"/login?next={path}" in str(resp.url)
 
 
 @pytest.mark.asyncio

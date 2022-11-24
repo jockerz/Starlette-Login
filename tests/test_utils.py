@@ -25,7 +25,8 @@ class TestCookieEncoding:
 class TestLogin:
     async def test_login_success(self, test_client):
         resp = test_client.post(
-            "/login", data={"username": "user1", "password": "password"}
+            "/login", data={"username": "user1", "password": "password"},
+            follow_redirects=False
         )
         assert resp.status_code == 302
         assert resp.headers["location"] == "/"
@@ -38,7 +39,7 @@ class TestLogin:
         assert resp.status_code == 200
 
         _ = test_client.get("/logout")
-        resp = test_client.get("/protected", allow_redirects=False)
+        resp = test_client.get("/protected", follow_redirects=False)
         assert resp.status_code == 302
 
     async def test_remember_me(self, test_client):

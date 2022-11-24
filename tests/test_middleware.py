@@ -25,7 +25,7 @@ class TestAuthenticationMiddleware:
 
         assert resp.json()["user"] is None
         assert resp.status_code == 200
-        assert resp.cookies.items() == []
+        assert list(resp.cookies) == []
 
     async def test_excluded_logged_in(self, test_client):
         test_client.post(
