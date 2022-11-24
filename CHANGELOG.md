@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.7
+
+### Removed
+
+ - Follows **starlette**, remove support for Python 3.6
+
 ## 0.1.6
 
 ### Updated
