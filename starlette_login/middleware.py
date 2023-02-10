@@ -13,7 +13,6 @@ class AuthenticationMiddleware:
         app: ASGIApp,
         backend: BaseAuthenticationBackend,
         login_manager: LoginManager,
-        login_route: str = None,
         excluded_dirs: t.List[str] = None,
         allow_websocket: bool = True,
     ):
@@ -21,7 +20,6 @@ class AuthenticationMiddleware:
         self.backend = backend
         self.excluded_dirs = excluded_dirs or []
         self.login_manager = login_manager
-        self.login_route = login_route
         self.secret_key = login_manager.secret_key
         self.allow_websocket = allow_websocket
 

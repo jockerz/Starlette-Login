@@ -58,9 +58,13 @@ class UserList:
         return self.dict_id().get(identifier)
 
     def user_loader(self, request: Request, user_id: int):
+        if not isinstance(user_id, int):
+            user_id = int(user_id)
         return self.get_by_id(user_id)
 
     async def async_user_loader(self, request: Request, user_id: int):
+        if not isinstance(user_id, int):
+            user_id = int(user_id)
         return self.get_by_id(user_id)
 
 

@@ -44,7 +44,6 @@ class SessionAuthBackend(BaseAuthenticationBackend):
             cookie = conn.cookies.get(config.COOKIE_NAME)
             if cookie:
                 user_id = self.login_manager.get_cookie(cookie)
-                user_id = int(user_id)
                 conn.session[session_fresh] = False
 
         if user_id is None:

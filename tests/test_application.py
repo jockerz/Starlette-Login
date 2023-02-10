@@ -9,8 +9,9 @@ class TestApplication:
         assert resp.status_code == 200
 
         resp = test_client.post(
-            "/login", data={"username": "user1", "password": "password"},
-            follow_redirects=False
+            "/login",
+            data={"username": "user1", "password": "password"},
+            follow_redirects=False,
         )
         assert resp.status_code == 302
         assert resp.headers["location"] == "/"

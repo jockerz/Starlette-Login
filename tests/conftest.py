@@ -53,7 +53,6 @@ async def app():
             AuthenticationMiddleware,
             backend=SessionAuthBackend(login_manager),
             login_manager=login_manager,
-            login_route="login",
             excluded_dirs=["/excluded"],
         ),
     ]
@@ -76,7 +75,6 @@ async def secure_app():
             AuthenticationMiddleware,
             backend=SessionAuthBackend(x_login_manager),
             login_manager=x_login_manager,
-            login_route="login",
             excluded_dirs=["/excluded"],
         ),
     ]

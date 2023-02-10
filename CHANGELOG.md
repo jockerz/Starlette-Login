@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.8
+
+### Updated
+
+ - remove `login_route` on `AuthenticationMiddleware` init method and property
+
 ## 0.1.7
 
 ### Removed
