@@ -38,6 +38,7 @@ pip install Starlette-Login
 ## Usage Examples
  
  - [Starlette-Login-Example](https://github.com/jockerz/Starlette-Login-Example): Basic example the usage of Starlette-Login using `basic auth` Authentication
+ - [StarletteStarter](https://github.com/jockerz/StarletteStarter): Starter Starlette web application. Ready with Register, Login, Forgot Password, Setting and more pages.
 
 
 [Documentation]: https://github.com/jockerz/Starlette-Login
