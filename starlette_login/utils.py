@@ -61,7 +61,7 @@ async def logout_user(request: Request) -> None:
     if session_id in request.session:
         request.session.pop(session_id)
 
-    if remember_cookie in request.cookies:
+    if remember_cookie in request.session:
         request.session[remember_cookie] = "clear"
         if remember_seconds in request.session:
             request.session.pop(remember_seconds)
