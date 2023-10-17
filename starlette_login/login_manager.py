@@ -57,7 +57,10 @@ class Config:
 
 class LoginManager:
     def __init__(
-        self, redirect_to: str, secret_key: str, config: Config = None
+        self,
+        redirect_to: str,
+        secret_key: str,
+        config: t.Optional[Config] = None,
     ):
         self.config = config or Config()
         self.anonymous_user_cls = AnonymousUser

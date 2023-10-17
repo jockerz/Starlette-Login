@@ -1,5 +1,5 @@
 import hmac
-import typing
+import typing as t
 from datetime import timedelta
 from hashlib import sha512
 from urllib.parse import quote, urlparse, urlunparse
@@ -16,7 +16,7 @@ async def login_user(
     request: Request,
     user: UserMixin,
     remember: bool = False,
-    duration: timedelta = None,
+    duration: t.Optional[timedelta] = None,
     fresh: bool = True,
 ) -> None:
     assert request.scope.get("app") is not None, "Invalid Starlette app"
@@ -70,13 +70,13 @@ async def logout_user(request: Request) -> None:
     request.scope["user"] = AnonymousUser()
 
 
-def encode_cookie(payload: typing.Any, key: str) -> str:
+def encode_cookie(payload: t.Any, key: str) -> str:
     if not isinstance(payload, str):
         payload = str(payload)
     return f"{payload}|{_cookie_digest(payload, key=key)}"
 
 
-def decode_cookie(cookie: str, key: str) -> typing.Optional[str]:
+def decode_cookie(cookie: str, key: str) -> t.Optional[str]:
     try:
         payload, digest = cookie.rsplit("|", 1)
     except ValueError:
@@ -87,7 +87,7 @@ def decode_cookie(cookie: str, key: str) -> typing.Optional[str]:
     return None
 
 
-def make_next_url(redirect_url: str, next_url: str = None) -> str:
+def make_next_url(redirect_url: str, next_url: t.Optional[str] = None) -> str:
     if next_url is None:
         return redirect_url
 
@@ -115,7 +115,7 @@ def make_next_url(redirect_url: str, next_url: str = None) -> str:
     return urlunparse(result_url)
 
 
-def _get_remote_address(request: Request) -> typing.Optional[str]:
+def _get_remote_address(request: Request) -> t.Optional[str]:
     address = request.headers.get("X-Forwarded-For")
     if address is not None:
         address = address.split(",")[0].strip()
@@ -138,7 +138,7 @@ def create_identifier(request) -> str:
     return h.hexdigest()
 
 
-def _secret_key(secret_key: typing.Union[bytes, str]) -> bytes:
+def _secret_key(secret_key: t.Union[bytes, str]) -> bytes:
     """ensure bytes"""
     if isinstance(secret_key, str):
         return secret_key.encode("latin1")

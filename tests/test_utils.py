@@ -1,4 +1,5 @@
 import pytest
+
 from starlette_login.utils import decode_cookie, encode_cookie
 
 SECRET_KEY = "secret"

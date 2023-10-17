@@ -13,7 +13,7 @@ class AuthenticationMiddleware:
         app: ASGIApp,
         backend: BaseAuthenticationBackend,
         login_manager: LoginManager,
-        excluded_dirs: t.List[str] = None,
+        excluded_dirs: t.Optional[t.List[str]] = None,
         allow_websocket: bool = True,
     ):
         self.app = app
