@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.1.9
+
+ - 🔧 Fix logout on remember issue [#1](https://github.com/jockerz/Starlette-Login/pull/1) by [@eykd](https://github.com/eykd)
+ - 🔧 Fix `AttributeError: 'URL' object has no attribute 'decode` error 
+
+
 ## 0.1.8
 
 ### Updated

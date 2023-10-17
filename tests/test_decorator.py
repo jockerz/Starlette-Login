@@ -1,3 +1,5 @@
+from urllib.parse import quote_plus
+
 import pytest
 from starlette.websockets import WebSocketDisconnect
 
@@ -55,7 +57,7 @@ class TestFreshLoginRequiredDecorator:
         test_client.get("/un_fresh")
 
         resp = test_client.get(path)
-        assert f"/login?next={path}" in str(resp.url)
+        assert quote_plus(path) in str(resp.url)
 
 
 @pytest.mark.asyncio

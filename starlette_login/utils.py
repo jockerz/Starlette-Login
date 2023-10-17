@@ -4,6 +4,7 @@ from datetime import timedelta
 from hashlib import sha512
 from urllib.parse import quote, urlparse, urlunparse
 
+from starlette.datastructures import URL
 from starlette.requests import Request
 
 from .mixins import AnonymousUser, UserMixin
@@ -90,7 +91,9 @@ def make_next_url(redirect_url: str, next_url: str = None) -> str:
     if next_url is None:
         return redirect_url
 
-    r_url = urlparse(redirect_url)
+    r_url = urlparse(
+        str(redirect_url) if isinstance(redirect_url, URL) else redirect_url
+    )
     n_url = urlparse(next_url)
 
     if (not r_url.scheme or r_url.scheme == n_url.scheme) and (
