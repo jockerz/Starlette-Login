@@ -2,7 +2,16 @@
 
 All notable changes to this project will be documented in this file.
 
+## 0.2.0
+
+### Remove
+
+ - Drop Python 3.7 support
+
+
 ## 0.1.9
+
+### Fixed
 
  - 🔧 Fix logout on remember issue [#1](https://github.com/jockerz/Starlette-Login/pull/1) by [@eykd](https://github.com/eykd)
  - 🔧 Fix `AttributeError: 'URL' object has no attribute 'decode` error 
