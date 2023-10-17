@@ -1,5 +1,4 @@
 import pytest
-
 from starlette_login.utils import decode_cookie, encode_cookie
 
 SECRET_KEY = "secret"
@@ -57,6 +56,22 @@ class TestLogin:
 
         assert resp.status_code == 200
         assert data["session"]["_remember"] == "set"
+
+    async def test_logout_w_remember_me(self, test_client):
+        _ = test_client.post(
+            "/login",
+            data={
+                "username": "user1",
+                "password": "password",
+                "remember": True,
+            },
+        )
+        resp = test_client.get("/protected")
+        assert resp.status_code == 200
+
+        _ = test_client.get("/logout")
+        resp = test_client.get("/protected", follow_redirects=False)
+        assert resp.status_code == 302
 
 
 @pytest.mark.asyncio
