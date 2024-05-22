@@ -1,7 +1,7 @@
 ## Login Manager
 
 First of all, you need to create a `LoginManager` instance.
-The login manager manage the `Starlette-Login` behaviour of your `Starllete` instance.
+The login manager manage the `Starlette-Login` behaviour of your `Starlette` instance.
 
 ```python
 from starlette_login.login_manager import LoginManager
