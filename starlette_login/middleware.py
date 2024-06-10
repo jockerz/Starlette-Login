@@ -26,7 +26,7 @@ class AuthenticationMiddleware:
     async def __call__(
         self, scope: Scope, receive: Receive, send: Send
     ) -> None:
-        if self.allow_websocket is False and scope["type"] != "http":
+        if self.allow_websocket is False and scope["type"] == "websocket":
             await self.app(scope, receive, send)
             return
         elif scope["type"] not in ("http", "websocket"):

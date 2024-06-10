@@ -57,7 +57,9 @@ class TestFreshLoginRequiredDecorator:
         test_client.get("/un_fresh")
 
         resp = test_client.get(path)
-        assert quote_plus(path) in str(resp.url)
+        # no need to quoted on v 0.37.2
+        # assert quote_plus(path) in str(resp.url)
+        assert path in str(resp.url)
 
 
 @pytest.mark.asyncio

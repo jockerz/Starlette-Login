@@ -3,6 +3,7 @@ import functools
 import inspect
 import typing
 
+from starlette.authentication import AuthCredentials
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from starlette.websockets import WebSocket
