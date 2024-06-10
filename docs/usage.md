@@ -28,7 +28,7 @@ login_manager.set_user_loader(get_user_by_id)
 
 ## User Class
 
-User class mush inherit `UserMixin` class.
+User class must inherit `UserMixin` class.
 
 ```python
 from starlette_login.mixins import UserMixin
