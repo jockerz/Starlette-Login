@@ -34,9 +34,9 @@ async def login_user(
     if remember:
         request.session[config.REMEMBER_COOKIE_NAME] = "set"
         if duration is not None:
-            request.session[
-                config.REMEMBER_SECONDS_NAME
-            ] = duration.total_seconds()
+            request.session[config.REMEMBER_SECONDS_NAME] = (
+                duration.total_seconds()
+            )
 
     request.scope["user"] = user
 

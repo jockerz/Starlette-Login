@@ -18,7 +18,7 @@ def get_long_description():
 
 setup(
     name='Starlette-Login',
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     version=get_version('starlette_login'),
     url='https://github.com/jockerz/starlette-login',
     license='MIT',

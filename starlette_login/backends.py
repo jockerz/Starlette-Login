@@ -1,27 +1,20 @@
 import asyncio
-import typing as t
 
+from starlette.authentication import AuthCredentials, AuthenticationBackend
 from starlette.requests import HTTPConnection
 
 from .login_manager import LoginManager
-from .mixins import UserMixin
+from .mixins import AnonymousUser, UserMixin
 from .utils import create_identifier
 
 
-class BaseAuthenticationBackend:
-    # name: str = None
-
-    async def authenticate(self, request: HTTPConnection):
-        ...  # pragma: no cover
-
-
-class SessionAuthBackend(BaseAuthenticationBackend):
+class SessionAuthBackend(AuthenticationBackend):
     def __init__(self, login_manager: LoginManager):
         self.login_manager = login_manager
 
     async def authenticate(
         self, conn: HTTPConnection
-    ) -> t.Optional[UserMixin]:
+    ) -> tuple[AuthCredentials, UserMixin | AnonymousUser]:
         # Load user from session
         config = self.login_manager.config
         remember_cookie = config.REMEMBER_COOKIE_NAME
@@ -47,9 +40,9 @@ class SessionAuthBackend(BaseAuthenticationBackend):
                 conn.session[session_fresh] = False
 
         if user_id is None:
-            return None
+            return AuthCredentials(), self.login_manager.anonymous_user_cls()
         elif asyncio.iscoroutinefunction(self.login_manager.user_loader):
             user = await self.login_manager.user_loader(conn, user_id)
         else:
             user = self.login_manager.user_loader(conn, user_id)
-        return user
+        return AuthCredentials(["authenticated"]), user

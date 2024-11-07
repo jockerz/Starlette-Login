@@ -3,7 +3,6 @@ import functools
 import inspect
 import typing
 
-from starlette.authentication import AuthCredentials
 from starlette.requests import Request
 from starlette.responses import RedirectResponse, Response
 from starlette.websockets import WebSocket
@@ -123,9 +122,9 @@ def fresh_login_required(func: typing.Callable) -> typing.Callable:
                 or getattr(user, "is_authenticated", False) is False
                 or request.session.get(session_fresh, False) is False
             ):
-                request.session[
-                    login_manager.config.SESSION_NAME_ID
-                ] = create_identifier(request)
+                request.session[login_manager.config.SESSION_NAME_ID] = (
+                    create_identifier(request)
+                )
 
                 return RedirectResponse(
                     make_next_url(
@@ -158,9 +157,9 @@ def fresh_login_required(func: typing.Callable) -> typing.Callable:
                 or getattr(user, "is_authenticated", False) is False
                 or request.session.get(session_fresh, False) is False
             ):
-                request.session[
-                    login_manager.config.SESSION_NAME_ID
-                ] = create_identifier(request)
+                request.session[login_manager.config.SESSION_NAME_ID] = (
+                    create_identifier(request)
+                )
 
                 return RedirectResponse(
                     make_next_url(

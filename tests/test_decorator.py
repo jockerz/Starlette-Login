@@ -1,5 +1,3 @@
-from urllib.parse import quote_plus
-
 import pytest
 from starlette.websockets import WebSocketDisconnect
 

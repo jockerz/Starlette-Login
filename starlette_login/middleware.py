@@ -1,9 +1,9 @@
 import typing as t
 
+from starlette.authentication import AuthCredentials, AuthenticationBackend
 from starlette.requests import HTTPConnection
 from starlette.types import ASGIApp, Message, Receive, Scope, Send
 
-from .backends import BaseAuthenticationBackend
 from .login_manager import LoginManager
 
 
@@ -11,7 +11,7 @@ class AuthenticationMiddleware:
     def __init__(
         self,
         app: ASGIApp,
-        backend: BaseAuthenticationBackend,
+        backend: AuthenticationBackend,
         login_manager: LoginManager,
         excluded_dirs: t.Optional[t.List[str]] = None,
         allow_websocket: bool = True,
@@ -41,11 +41,17 @@ class AuthenticationMiddleware:
 
         conn = HTTPConnection(scope=scope, receive=receive)
 
-        user = await self.backend.authenticate(conn)
-        if not user or user.is_authenticated is False:
+        auth_result = await self.backend.authenticate(conn)
+        if auth_result is None:
             conn.scope["user"] = self.login_manager.anonymous_user_cls()
+            conn.scope["auth"] = AuthCredentials()
         else:
-            conn.scope["user"] = user
+            credentials, user = auth_result
+            if not user or user.is_authenticated is False:
+                conn.scope["user"] = self.login_manager.anonymous_user_cls()
+            else:
+                conn.scope["user"] = user
+            conn.scope["auth"] = credentials
 
         async def custom_send(message: Message):
             user_ = conn.scope["user"]

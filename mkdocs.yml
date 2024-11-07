@@ -21,6 +21,10 @@ markdown_extensions:
   - pymdownx.details
   - pymdownx.highlight:
       anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
   - pymdownx.superfences
 
 repo_name: jockerz/Starlette-Login
@@ -28,7 +32,7 @@ repo_url: https://github.com/jockerz/Starlette-Login
 edit_uri: ""
 
 nav:
-  - Basic: index.md
+  - Basic Example: index.md
   - Usage: usage.md
   - Customization:
     - Login Manager: custom/login-manager.md

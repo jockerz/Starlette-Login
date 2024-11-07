@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.0
+
+- Requires Python `>=3.8`
+- Authentication integration with `starlette` update `v>=0.37.x`
+- Enhancement of the `starlette` authentication. Thanks to __@abingham__ [4#issuecomment-2242354437](https://github.com/jockerz/Starlette-Login/issues/4#issuecomment-2242354437)
+
+
+## 0.2.2
+
 ## 0.2.0
 
 ### Remove
