@@ -1,4 +1,5 @@
 import asyncio
+import typing as t
 
 from starlette.authentication import AuthCredentials, AuthenticationBackend
 from starlette.requests import HTTPConnection
@@ -14,7 +15,7 @@ class SessionAuthBackend(AuthenticationBackend):
 
     async def authenticate(
         self, conn: HTTPConnection
-    ) -> tuple[AuthCredentials, UserMixin | AnonymousUser]:
+    ) -> tuple[AuthCredentials, t.Union[AnonymousUser, UserMixin]]:
         # Load user from session
         config = self.login_manager.config
         remember_cookie = config.REMEMBER_COOKIE_NAME
