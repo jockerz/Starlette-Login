@@ -15,7 +15,7 @@ class SessionAuthBackend(AuthenticationBackend):
 
     async def authenticate(
         self, conn: HTTPConnection
-    ) -> tuple[AuthCredentials, t.Union[AnonymousUser, UserMixin]]:
+    ) -> t.Tuple[AuthCredentials, t.Union[AnonymousUser, UserMixin]]:
         # Load user from session
         config = self.login_manager.config
         remember_cookie = config.REMEMBER_COOKIE_NAME
