@@ -99,10 +99,16 @@ class LoginManager:
     def protection_is_strong(self):
         return self.config.protection_level == ProtectionLevel.Strong
 
-    def set_cookie(self, message: Message, user_id: t.Any) -> Message:
+    def set_cookie(
+        self, message: Message, user_id: t.Any, duration: int = 0
+    ) -> Message:
         key = self.config.COOKIE_NAME
         value = encode_cookie(user_id, self.secret_key)
-        expires = int(self.config.COOKIE_DURATION.total_seconds())
+        expires = int(
+            (
+                timedelta(seconds=duration) or self.config.COOKIE_DURATION
+            ).total_seconds()
+        )
         path = self.config.COOKIE_PATH
         domain = self.config.COOKIE_DOMAIN
         secure = self.config.COOKIE_SECURE

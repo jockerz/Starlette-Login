@@ -60,8 +60,13 @@ class AuthenticationMiddleware:
                     self.login_manager.config.REMEMBER_COOKIE_NAME
                 )
                 if operation == "set":
+                    duration = conn.session.get(
+                        self.login_manager.config.REMEMBER_SECONDS_NAME, 0
+                    )
                     message = self.login_manager.set_cookie(
-                        message=message, user_id=user_.identity
+                        message=message,
+                        user_id=user_.identity,
+                        duration=duration,
                     )
                 elif operation == "clear":
                     try:

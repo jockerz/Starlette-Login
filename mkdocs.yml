@@ -4,6 +4,9 @@ site_description: User session management for Starlette
 theme:
   name: 'material'
 #  custom_dir: docs/overrides
+  features:
+    - content.code.copy
+    - navigation.footer
   palette:
     - scheme: 'default'
       media: '(prefers-color-scheme: light)'
