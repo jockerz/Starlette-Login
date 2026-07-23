@@ -38,6 +38,8 @@ nav:
   - Basic Example: index.md
   - Usage: usage.md
   - Customization:
+    - Authentication Backend: custom/backend.md
+    - Middlewares: custom/middleware.md
     - Login Manager: custom/login-manager.md
     - Configuration: custom/configuration.md
   - Advance Usage:

@@ -12,7 +12,8 @@ app = Starlette(
             AuthenticationMiddleware,
             backend=SessionAuthBackend(login_manager),
             login_manager=login_manager,
-            login_route='login',
+            excluded_dir=['/statics', '/favicon.ico'],
+            allow_websocket=False
         )
     ],
     ...
