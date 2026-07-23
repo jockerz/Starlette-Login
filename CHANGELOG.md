@@ -2,6 +2,12 @@
 
 All notable changes to this project will be documented in this file.
 
+## 1.0.4
+
+### Updated
+
+- Drop support to Python `<=3.9`
+
 ## 1.0.3
 
 ### Fixed

@@ -18,7 +18,7 @@ def get_long_description():
 
 setup(
     name='Starlette-Login',
-    python_requires='>=3.8',
+    python_requires='>=3.10',
     version=get_version('starlette_login'),
     url='https://github.com/jockerz/starlette-login',
     license='MIT',
@@ -29,7 +29,7 @@ setup(
     author_email='jockerz@protonmail.com',
     packages=find_packages(exclude=["tests*"]),
     install_requires=[
-        'starlette',
+        'starlette>=1.0',
         'itsdangerous',  # required by starlette' SessionMiddleware
     ],
     classifiers=[
@@ -40,10 +40,11 @@ setup(
         "Operating System :: OS Independent",
         "Topic :: Internet :: WWW/HTTP",
         "Programming Language :: Python :: 3",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
+        "Programming Language :: Python :: 3.12",
+        "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
     ],
     zip_safe=False,
 )
