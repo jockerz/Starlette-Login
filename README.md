@@ -15,6 +15,9 @@
   <a href='https://starlette-login.readthedocs.io/en/stable/?badge=stable'>
     <img src='https://readthedocs.org/projects/starlette-login/badge/?version=stable' alt='Documentation Status' />
   </a>
+  <a href='https://pypi.org/project/Starlette-Login'>
+    <img src='https://static.pepy.tech/badge/starlette-login/month' alt='Monthly Download Count' />
+  </a>
 </p>
 
 
